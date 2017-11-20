@@ -154,8 +154,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5d"
-#define VER_TXT   "updated edge reading logic to be cleaner"
+#define VER_NUM   "v0.5e"
+#define VER_TXT   "updated broke out node and edge drawing to better tune"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -178,6 +178,8 @@ struct cNODE {
    char      glx;                 /* uses open gl                             */
    char      f;                   /* focus flag     -- 0=hide, 1=show         */
    char      r;                   /* recursive flag -- 0=no  , 1=yes          */
+   float     lead;                /* position of lead side                    */
+   float     tail;                /* position of tail side                    */
    float     arc;                 /* space on curve                           */
    tNODE    *prev;                /* pointer to parent                        */
    tNODE    *next;                /* pointer to next sibling                  */
@@ -267,7 +269,7 @@ char       PROG_end          (void);
 char       draw_init         (void);
 char       draw_main         (void);
 char       draw_back         (void);
-char       draw_nodes        (void);
+char       DRAW_nodes        (void);
 char       draw_edges        (void);
 char       draw_texture      (void);
 char       texture_create    (void);

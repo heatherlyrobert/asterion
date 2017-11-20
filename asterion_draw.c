@@ -258,11 +258,11 @@ draw_back          (void)
    int   rc = 0;
    char    temp[100];
    /*---(center)---------------------------*/
-   r = 240;
+   r = 225;
    glBindTexture(GL_TEXTURE_2D, 0);
    glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
    glBegin(GL_POLYGON); {
-      for (d = 0; d <= 365; d += 5) {
+      for (d = 0; d <= 365; d += 0.2) {
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x = (r * sin(rad));
          y = (r * cos(rad));
@@ -270,30 +270,30 @@ draw_back          (void)
       }
    } glEnd();
    glBegin(GL_LINE_STRIP); {
-      for (d = 0; d <= 365; d += 5) {
+      for (d = 0; d <= 365; d += 0.2) {
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x = (r * sin(rad));
          y = (r * cos(rad));
          glVertex3f(x, y,  22.0);
       }
    } glEnd();
-   r = 245;
-   glBegin(GL_POLYGON); {
-      for (d = 0; d <= 365; d += 5) {
-         rad = ((float) (d) / 360.0) * (2 * 3.1415927);
-         x = (r * sin(rad));
-         y = (r * cos(rad));
-         glVertex3f(x, y,  -5.0);
-      }
-   } glEnd();
-   glBegin(GL_LINE_STRIP); {
-      for (d = 0; d <= 365; d += 5) {
-         rad = ((float) (d) / 360.0) * (2 * 3.1415927);
-         x = (r * sin(rad));
-         y = (r * cos(rad));
-         glVertex3f(x, y,  -5.0);
-      }
-   }glEnd();
+   /*> r = 245;                                                                       <* 
+    *> glBegin(GL_POLYGON); {                                                         <* 
+    *>    for (d = 0; d <= 365; d += 1) {                                             <* 
+    *>       rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
+    *>       x = (r * sin(rad));                                                      <* 
+    *>       y = (r * cos(rad));                                                      <* 
+    *>       glVertex3f(x, y,  -5.0);                                                 <* 
+    *>    }                                                                           <* 
+    *> } glEnd();                                                                     <* 
+    *> glBegin(GL_LINE_STRIP); {                                                      <* 
+    *>    for (d = 0; d <= 365; d += 1) {                                             <* 
+    *>       rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
+    *>       x = (r * sin(rad));                                                      <* 
+    *>       y = (r * cos(rad));                                                      <* 
+    *>       glVertex3f(x, y,  -5.0);                                                 <* 
+    *>    }                                                                           <* 
+    *> }glEnd();                                                                      <*/
    /*---(external)-------------------------*/
    r =  10;
    glColor4f (0.0f, 0.0f, 0.0f, 0.3f);
@@ -350,6 +350,58 @@ DRAW_edge_end      (tEDGE *a_edge, float a_arc, float a_radius)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.WQ0.0C1.D0]*/ /*-[04.0060.013.!]-*/ /*-[--.---.---.--]-*/
+DRAW_edge_norm     (tEDGE *a_edge, float a_radius, float a_z)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_degrees   = 0.0;
+   float       x_radians   = 0.0;
+   float       x_lead      = 0.0;
+   float       x_tail      = 0.0;
+   float       x_sarc      = 0.0;
+   float       x           = 0.0;
+   float       y           = 0.0;
+   float       x_controls [3][3];
+   float       x_pos       = 0.0;
+   /*---(prepare)------------------------*/
+   x_lead = a_edge->beg->lead;
+   x_tail = a_edge->beg->tail;
+   x_sarc = a_edge->beg->arc / (a_edge->beg->nchild + 1);
+   /*---(start)-----------------------*/
+   /*> x_degrees   = x_lead + (x_sarc * a_edge->seq);                                 <*/
+   x_degrees   = a_edge->beg->lead + ((a_edge->beg->arc / 3.0) * 2.0);
+   x_radians = ((float) (x_degrees) / 360.0) * (2 * 3.1415927);
+   x  = (a_radius * sin (x_radians));
+   y  = (a_radius * cos (x_radians));
+   x_controls [0][0] =   x;
+   x_controls [0][1] =   y;
+   x_controls [0][2] = a_z;
+   /*---(center point)----------------*/
+   x_controls [1][0] =   0;
+   x_controls [1][1] =   0;
+   x_controls [1][2] = a_z;
+   /*---(end)-------------------------*/
+   x_degrees   = a_edge->end->lead + ((a_edge->end->arc / 3.0) * 1.0);
+   x_radians = ((float) (x_degrees) / 360.0) * (2 * 3.1415927);
+   x  = (a_radius * sin (x_radians));
+   y  = (a_radius * cos (x_radians));
+   x_controls [2][0] =   x;
+   x_controls [2][1] =   y;
+   x_controls [2][2] = a_z;
+   /*---(draw)------------------------*/
+   color_set (a_edge->beg->id % 9, 1.0);
+   glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &x_controls [0][0]);
+   glEnable(GL_MAP1_VERTEX_3);
+   glBegin(GL_LINE_STRIP); {
+      for (x_pos = 0.0; x_pos <= 1.01; x_pos += 0.05) {
+         glEvalCoord1f (x_pos);
+      }
+   } glEnd();
+   glDisable(GL_MAP1_VERTEX_3);
+   /*---(complete)--------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [gz.WQ0.0C1.D0]*/ /*-[04.0060.013.!]-*/ /*-[--.---.---.--]-*/
 draw_edges         (void)
 {
    tEDGE      *x_edge      = NULL;
@@ -399,37 +451,38 @@ draw_edges         (void)
          /*> glLineStipple(1, 0xA0A0);                                                <*/
       }
       if (x_edge->beg != x_edge->end) {
-         /*---(center point)----------------*/
-         ctrl[1][0] =   0;
-         ctrl[1][1] =   0;
-         ctrl[1][2] =  40;
-         /*---(start)-----------------------*/
-         d   = (x_edge->beg->id + (x_edge->beg->nchild / 2.0)) * arc;
-         rad = ((float) (d) / 360.0) * (2 * 3.1415927);
-         x  = (r * sin(rad));
-         y  = (r * cos(rad));
-         ctrl[0][0] =   x;
-         ctrl[0][1] =   y;
-         ctrl[0][2] =  40;
-         /*---(end)-------------------------*/
-         d   = (x_edge->end->id + (x_edge->end->nchild / 2.0)) * arc;
-         rad = ((float) (d) / 360.0) * (2 * 3.1415927);
-         x  = (r * sin(rad));
-         y  = (r * cos(rad));
-         ctrl[2][0] =   x;
-         ctrl[2][1] =   y;
-         ctrl[2][2] =  40;
-         /*---(draw)------------------------*/
-         xcolor = x_edge->beg->id % 9;
-         color_set (xcolor, 1.0);
-         glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl[0][0]);
-         glEnable(GL_MAP1_VERTEX_3);
-         glBegin(GL_LINE_STRIP); {
-            for (i = 0.0; i <= 1.01; i += 0.05) {
-               glEvalCoord1f(i);
-            }
-         } glEnd();
-         glDisable(GL_MAP1_VERTEX_3);
+         DRAW_edge_norm (x_edge, r - 10, 40.0);
+         /*> /+---(center point)----------------+/                                    <* 
+          *> ctrl[1][0] =   0;                                                        <* 
+          *> ctrl[1][1] =   0;                                                        <* 
+          *> ctrl[1][2] =  40;                                                        <* 
+          *> /+---(start)-----------------------+/                                    <* 
+          *> d   = (x_edge->beg->id + (x_edge->beg->nchild / 2.0)) * arc;             <* 
+          *> rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
+          *> x  = (r * sin(rad));                                                     <* 
+          *> y  = (r * cos(rad));                                                     <* 
+          *> ctrl[0][0] =   x;                                                        <* 
+          *> ctrl[0][1] =   y;                                                        <* 
+          *> ctrl[0][2] =  40;                                                        <* 
+          *> /+---(end)-------------------------+/                                    <* 
+          *> d   = (x_edge->end->id + (x_edge->end->nchild / 2.0)) * arc;             <* 
+          *> rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
+          *> x  = (r * sin(rad));                                                     <* 
+          *> y  = (r * cos(rad));                                                     <* 
+          *> ctrl[2][0] =   x;                                                        <* 
+          *> ctrl[2][1] =   y;                                                        <* 
+          *> ctrl[2][2] =  40;                                                        <* 
+          *> /+---(draw)------------------------+/                                    <* 
+          *> xcolor = x_edge->beg->id % 9;                                            <* 
+          *> color_set (xcolor, 1.0);                                                 <* 
+          *> glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl[0][0]);                  <* 
+          *> glEnable(GL_MAP1_VERTEX_3);                                              <* 
+          *> glBegin(GL_LINE_STRIP); {                                                <* 
+          *>    for (i = 0.0; i <= 1.01; i += 0.05) {                                 <* 
+          *>       glEvalCoord1f(i);                                                  <* 
+          *>    }                                                                     <* 
+          *> } glEnd();                                                               <* 
+          *> glDisable(GL_MAP1_VERTEX_3);                                             <*/
       } else {
          glDisable(GL_LINE_STIPPLE);
          /*---(start)-----------------------*/
@@ -471,7 +524,7 @@ draw_edges         (void)
       }
       glDisable(GL_LINE_STIPPLE);
       /*---(dot)-------------------------*/
-      DRAW_edge_end  (x_edge, arc, r);
+      /*> DRAW_edge_end  (x_edge, arc, r);                                            <*/
       /*---(edge number)-----------------*/
       if (edges == 's') {
          glPushMatrix(); {
@@ -504,7 +557,66 @@ draw_edges         (void)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.013.!]-*/ /*-[--.---.---.--]-*/
-draw_nodes         (void)
+DRAW_node_wedge    (tNODE *a_node, float a_radius)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_degrees   = 0.0;
+   float       x_radians   = 0.0;
+   float       x_lead      = 0.0;
+   float       x_tail      = 0.0;
+   float       x           = 0.0;
+   float       y           = 0.0;
+   /*---(prepare)------------------------*/
+   x_lead = a_node->lead;
+   x_tail = a_node->tail;
+   /*---(wedge)--------------------------*/
+   glPushMatrix(); {
+      glBegin(GL_POLYGON); {
+         /*---(center)---------*/
+         glVertex3f(   0.0f,    0.0f, -15.0f);
+         /*---(top line)-------*/
+         for (x_degrees = x_lead; x_degrees <= x_tail; x_degrees += 1) {
+            x_radians = ((float) (x_degrees) / 360.0) * (2 * 3.1415927);
+            x  = ((a_radius) * sin (x_radians));
+            y  = ((a_radius) * cos (x_radians));
+            glVertex3f(     x,      y, -15.0f);
+         }
+         /*---(push to end)----*/
+         x_radians = ((float) (x_tail) / 360.0) * (2 * 3.1415927);
+         x  = ((a_radius) * sin (x_radians));
+         y  = ((a_radius) * cos (x_radians));
+         glVertex3f(     x,      y, -15.0f);
+         /*---(center)---------*/
+         glVertex3f(   0.0f,    0.0f, -15.0f);
+         /*---(done)-----------*/
+      } glEnd();
+   } glPopMatrix();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.013.!]-*/ /*-[--.---.---.--]-*/
+DRAW_node_label    (tNODE *a_node, float a_radius)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_degrees   = 0.0;
+   /*---(prepare)------------------------*/
+   x_degrees = a_node->lead + (a_node->arc / 2.0);
+   /*---(label)--------------------------*/
+   glPushMatrix (); {
+      glRotatef    (90.0 - x_degrees, 0.0f, 0.0f, 1.0f);
+      glTranslatef (a_radius,  0.0, 20.0);
+      glTranslatef (  2.0,  0.0,  0.0);
+      yFONT_print  (txf_sm,  6, YF_MIDCEN, a_node->hint);
+      glTranslatef ( 12.0,  0.0,  0.0);
+      yFONT_print  (txf_sm,  6, YF_MIDLEF, a_node->name);
+   } glPopMatrix ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.013.!]-*/ /*-[--.---.---.--]-*/
+DRAW_nodes         (void)
 {
    /*---(locals)---------------------------*/
    tNODE      *x_node      = NULL;
@@ -537,54 +649,61 @@ draw_nodes         (void)
       glPushMatrix(); {
          /*---(file line)----------------*/
          color_set (x_node->file % 9, 0.3);
-         if (x_node->file == lfile) d1  = (x_node->id - 0.60) * arc;
-         glBegin(GL_POLYGON); {
-            glVertex3f(   0.0f,    0.0f, -15.0f);
-            for (i = d1; i <= d2; i += 1) {
-               rad = ((float) (i) / 360.0) * (2 * 3.1415927);
-               x  = ((r + 15) * sin(rad));
-               y  = ((r + 15) * cos(rad));
-               glVertex3f(     x,      y, -15.0f);
-            }
-            rad = ((float) (d2) / 360.0) * (2 * 3.1415927);
-            x  = ((r + 15) * sin(rad));
-            y  = ((r + 15) * cos(rad));
-            glVertex3f(     x,      y, -15.0f);
-            glVertex3f(   0.0f,    0.0f, -15.0f);
-         } glEnd();
-         lfile = x_node->file;
-         /*---(function)-----------------*/
+         DRAW_node_wedge (x_node, r + 15);
+         color_set (x_node->id   % 9, 0.8);
+         DRAW_node_wedge (x_node, r);
          glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-         if (x_node->type == 'f') color_set (gcolor, alpha);
-         d1  = (x_node->id - 0.40) * arc;
-         glBegin(GL_POLYGON); {
-            glVertex3f(   0.0f,    0.0f,   0.0f);
-            for (i = d1; i <= d2; i += 1) {
-               rad = ((float) (i) / 360.0) * (2 * 3.1415927);
-               x  = (r * sin(rad));
-               y  = (r * cos(rad));
-               glVertex3f(     x,      y,   0.0f);
-            }
-            rad = ((float) (d2) / 360.0) * (2 * 3.1415927);
-            x  = (r * sin(rad));
-            y  = (r * cos(rad));
-            glVertex3f(     x,      y,   0.0f);
-            glVertex3f(   0.0f,    0.0f,   0.0f);
-         } glEnd();
-         glBegin(GL_LINE_STRIP); {
-            glVertex3f(   0.0f,    0.0f,   5.0f);
-            for (i = d1; i <= d2; i += 1) {
-               rad = ((float) (i) / 360.0) * (2 * 3.1415927);
-               x  = (r * sin(rad));
-               y  = (r * cos(rad));
-               glVertex3f(     x,      y,   5.0f);
-            }
-            rad = ((float) (d2) / 360.0) * (2 * 3.1415927);
-            x  = (r * sin(rad));
-            y  = (r * cos(rad));
-            glVertex3f(     x,      y,     5.0f);
-            glVertex3f(   0.0f,    0.0f,   5.0f);
-         } glEnd();
+         DRAW_node_label (x_node, r + 5);
+         /*> color_set (x_node->file % 9, 0.3);                                       <* 
+          *> if (x_node->file == lfile) d1  = (x_node->id - 0.60) * arc;              <* 
+          *> glBegin(GL_POLYGON); {                                                   <* 
+          *>    glVertex3f(   0.0f,    0.0f, -15.0f);                                 <* 
+          *>    for (i = d1; i <= d2; i += 1) {                                       <* 
+          *>       rad = ((float) (i) / 360.0) * (2 * 3.1415927);                     <* 
+          *>       x  = ((r + 15) * sin(rad));                                        <* 
+          *>       y  = ((r + 15) * cos(rad));                                        <* 
+          *>       glVertex3f(     x,      y, -15.0f);                                <* 
+          *>    }                                                                     <* 
+          *>    rad = ((float) (d2) / 360.0) * (2 * 3.1415927);                       <* 
+          *>    x  = ((r + 15) * sin(rad));                                           <* 
+          *>    y  = ((r + 15) * cos(rad));                                           <* 
+          *>    glVertex3f(     x,      y, -15.0f);                                   <* 
+          *>    glVertex3f(   0.0f,    0.0f, -15.0f);                                 <* 
+          *> } glEnd();                                                               <* 
+          *> lfile = x_node->file;                                                    <*/
+         /*---(function)-----------------*/
+         /*> glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                      <* 
+          *> if (x_node->type == 'f') color_set (gcolor, alpha);                      <* 
+          *> d1  = (x_node->id - 0.40) * arc;                                         <* 
+          *> glBegin(GL_POLYGON); {                                                   <* 
+          *>    glVertex3f(   0.0f,    0.0f,   0.0f);                                 <* 
+          *>    for (i = d1; i <= d2; i += 1) {                                       <* 
+          *>       rad = ((float) (i) / 360.0) * (2 * 3.1415927);                     <* 
+          *>       x  = (r * sin(rad));                                               <* 
+          *>       y  = (r * cos(rad));                                               <* 
+          *>       glVertex3f(     x,      y,   0.0f);                                <* 
+          *>    }                                                                     <* 
+          *>    rad = ((float) (d2) / 360.0) * (2 * 3.1415927);                       <* 
+          *>    x  = (r * sin(rad));                                                  <* 
+          *>    y  = (r * cos(rad));                                                  <* 
+          *>    glVertex3f(     x,      y,   0.0f);                                   <* 
+          *>    glVertex3f(   0.0f,    0.0f,   0.0f);                                 <* 
+          *> } glEnd();                                                               <*/
+
+         /*> glBegin(GL_LINE_STRIP); {                                                <* 
+          *>    glVertex3f(   0.0f,    0.0f,   5.0f);                                 <* 
+          *>    for (i = d1; i <= d2; i += 1) {                                       <* 
+          *>       rad = ((float) (i) / 360.0) * (2 * 3.1415927);                     <* 
+          *>       x  = (r * sin(rad));                                               <* 
+          *>       y  = (r * cos(rad));                                               <* 
+          *>       glVertex3f(     x,      y,   5.0f);                                <* 
+          *>    }                                                                     <* 
+          *>    rad = ((float) (d2) / 360.0) * (2 * 3.1415927);                       <* 
+          *>    x  = (r * sin(rad));                                                  <* 
+          *>    y  = (r * cos(rad));                                                  <* 
+          *>    glVertex3f(     x,      y,     5.0f);                                 <* 
+          *>    glVertex3f(   0.0f,    0.0f,   5.0f);                                 <* 
+          *> } glEnd();                                                               <*/
          /*---(separator)----------------*/
          /*> if (x_node->type == 'f') {                                               <* 
           *>    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                   <* 
@@ -605,21 +724,21 @@ draw_nodes         (void)
           *>    } glEnd();                                                            <* 
           *> }                                                                        <*/
          /*---(move to edge)-------------*/
-         glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-         glRotatef( 90 - d, 0.0f, 0.0f, 1.0f);
-         glTranslatef( r +  5,  0.0, 20.0);
+         /*> glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                      <* 
+          *> glRotatef( 90 - d, 0.0f, 0.0f, 1.0f);                                    <* 
+          *> glTranslatef( r +  5,  0.0, 20.0);                                       <*/
          /*---(recursive)----------------*/
-         if (x_node->r > 0) {
-            glPushMatrix(); {
-               glTranslatef( -5.0,  0.0,   5.0);
-               glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-               glPointSize(10.0);
-               glBegin(GL_POINTS);
-               glVertex3f( 0.0, 0.0,  0.0);
-               glEnd();
-               glPointSize( 1.0);
-            } glPopMatrix();
-         }
+         /*> if (x_node->r > 0) {                                                     <* 
+          *>    glPushMatrix(); {                                                     <* 
+          *>       glTranslatef( -5.0,  0.0,   5.0);                                  <* 
+          *>       glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                <* 
+          *>       glPointSize(10.0);                                                 <* 
+          *>       glBegin(GL_POINTS);                                                <* 
+          *>       glVertex3f( 0.0, 0.0,  0.0);                                       <* 
+          *>       glEnd();                                                           <* 
+          *>       glPointSize( 1.0);                                                 <* 
+          *>    } glPopMatrix();                                                      <* 
+          *> }                                                                        <*/
          /*---(output marker)------------*/
          /*> if (x_node->type == '-') {                                               <* 
           *>    glColor4f (0.4f, 0.4f, 0.4f, 1.0f);                                   <* 
@@ -682,30 +801,30 @@ draw_nodes         (void)
           *>    } glPopMatrix();                                                      <* 
           *> }                                                                        <*/
          /*---(label)--------------------*/
-         glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-         if (nnode < 100) {
-            /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
-            glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);
-            glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);
-         } else if (nnode < 150) {
-            /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
-            glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDCEN, x_node->hint);
-            glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDLEF, x_node->name);
-         } else if (nnode < 300) {
-            glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);
-            glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);
-         } else {
-            glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  3, YF_MIDCEN, x_node->hint);
-            glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  3, YF_MIDLEF, x_node->name);
-         }
+         /*> glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                                <* 
+          *> if (nnode < 100) {                                                                 <* 
+          *>    /+> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <+/   <* 
+          *>    glTranslatef(  2.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);                               <* 
+          *>    glTranslatef( 12.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);                               <* 
+          *> } else if (nnode < 150) {                                                          <* 
+          *>    /+> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <+/   <* 
+          *>    glTranslatef(  2.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  8, YF_MIDCEN, x_node->hint);                               <* 
+          *>    glTranslatef( 12.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  8, YF_MIDLEF, x_node->name);                               <* 
+          *> } else if (nnode < 300) {                                                          <* 
+          *>    glTranslatef(  2.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);                               <* 
+          *>    glTranslatef( 12.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);                               <* 
+          *> } else {                                                                           <* 
+          *>    glTranslatef(  2.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  3, YF_MIDCEN, x_node->hint);                               <* 
+          *>    glTranslatef( 12.0,  0.0,  0.0);                                                <* 
+          *>    yFONT_print(txf_sm,  3, YF_MIDLEF, x_node->name);                               <* 
+          *> }                                                                                  <*/
       } glPopMatrix();
       x_node = x_node->next;
    }
@@ -785,8 +904,8 @@ draw_main          (void)
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    DEBUG_G  printf("draw_main()   : draw_back...\n");
    draw_back  ();
-   DEBUG_G  printf("draw_main()   : draw_nodes...\n");
-   draw_nodes ();
+   DEBUG_G  printf("draw_main()   : DRAW_nodes...\n");
+   DRAW_nodes ();
    DEBUG_G  printf("draw_main()   : draw_edges...\n");
    draw_edges ();
    DEBUG_G  printf("draw_main()   : unbind framebuffer...\n");

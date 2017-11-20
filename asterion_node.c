@@ -15,13 +15,20 @@ NODE_place_default   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    tNODE      *x_node      = nhead;
-   float       x_arc       = 0;
+   float       x_arc       = 0.0;
+   float       x_lead      = 0.0;
    /*---(prepare)------------------------*/
    x_arc   = 360.0 / nnode;
    /*---(walk nodes)---------------------*/
    while (x_node != NULL) {
-      x_node->arc = x_arc;
-      x_node  = x_node->next;
+      /*---(position)----------*/
+      x_node->lead = x_lead;
+      x_node->arc  = x_arc;
+      x_node->tail = x_lead + x_arc;
+      /*---(next)--------------*/
+      x_lead      += x_arc;
+      x_node       = x_node->next;
+      /*---(done)--------------*/
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -51,6 +58,9 @@ NODE_create        (char *a_name)
    temp->prev   = NULL;
    temp->next   = NULL;
    temp->r      = 0;
+   temp->lead   = 0;
+   temp->tail   = 0;
+   temp->arc    = 0;
    /*---(parse name)------------------*/
    temp->type  = 'f';
    len = strlen(a_name);
