@@ -10,7 +10,7 @@ tNODE    *ntail   = NULL;
 
 
 
-tNODE*       /*-> create a new node ------------------[ leaf   [gp.960.121.20]*/ /*-[11.0000.011--]-*/ /*-[--.---.---.--]-*/
+tNODE*       /*-> create a new node ------------------[ leaf   [gp.960.121.20]*/ /*-[11.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_create        (char *a_name)
 {
    /*---(locals)-------------------------*/
@@ -52,7 +52,7 @@ NODE_create        (char *a_name)
    return temp;
 }
 
-char         /*-> append node to list ----------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> append node to list ----------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_append        (tNODE  *a_node)
 {
    if (nhead == NULL) {
@@ -67,7 +67,7 @@ NODE_append        (tNODE  *a_node)
    return 0;
 }
 
-tNODE*       /*-> find a specific node ---------------[ leaf   [gp.320.121.20]*/ /*-[02.0000.011--]-*/ /*-[--.---.---.--]-*/
+tNODE*       /*-> find a specific node ---------------[ leaf   [gp.320.121.20]*/ /*-[02.0000.103.!]-*/ /*-[--.---.---.--]-*/
 NODE_find          (char *a_name)
 {
    tNODE    *curr   = nhead;
@@ -82,59 +82,73 @@ NODE_find          (char *a_name)
    return found;
 }
 
-char         /*-> read internal function list --------[ leaf   [gc.C71.065.B0]*/ /*-[02.0004.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> read internal function list --------[ ------ [gc.C71.065.B2]*/ /*-[02.0004.102.!]-*/ /*-[--.---.---.--]-*/
 NODE_read          (void)
 {
    DEBUG_I  printf("NODE_read     () begin\n");
-   /*---(locals)--------------------------------*/
-   char      recd [MAXLINE] = "";      /* record from stdin                   */
-   int       len       = 0;            /* uncleaned string len                */
-   char*     p         = NULL;         /* strtok() parsing pointer            */
-   char      q[5]      = " ";          /* strtok() delimiters                 */
-   tNODE    *curr      = NULL;         /* new node                            */
-   char      sfile[30] = "";           /* saved name of input file            */
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_recd      [MAXLINE] = "";  /* record from stdin              */
+   int         x_len       = 0;             /* uncleaned string len           */
+   char*       p           = NULL;          /* strtok() parsing pointer       */
+   char       *q           = " ";           /* strtok() delimiters            */
+   char        x_hint      [5] = "";        /* temp for hint                  */
+   tNODE      *x_curr      = NULL;          /* new node                       */
+   char        x_sfile       [30]   = "";     /* saved name of input file       */
+   char       *x_hint1     = "abcdefghijklmnopqrstuvwxyz";
+   char       *x_hint2     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
    /*---(read first)---------------------*/
-   fgets(recd, MAXLINE, stdin);
-   if (feof(stdin))     return 0;
-   /*---(clear blanks)-------------------*/
-   while (1) {
-      len = strlen(recd);
-      if (recd[0] != '\n') break;
-      fgets(recd, MAXLINE, stdin);
-      if (feof(stdin))     return 0;
+   fgets  (x_recd, MAXLINE, stdin);
+   --rce;  if (feof (stdin))      return rce;
+   /*---(clear blank lines)--------------*/
+   --rce;  while (1) {
+      x_len = strlen (x_recd);
+      if (x_recd[0] != '\n')      break;
+      fgets (x_recd, MAXLINE, stdin);
+      if (feof (stdin))           return rce;
    }
    /*---(read functions)-----------------*/
+   --rce;
    while (1) {
+      /*---(read line)-------------------*/
+      fgets (x_recd, MAXLINE, stdin);
+      if (feof (stdin))                     return rce;
+      /*---(filter)----------------------*/
+      if (x_recd [0] == '\n')               break;
+      /*---(handle hint)-----------------*/
+      p        = strtok (x_recd, q);
+      x_len    = strlen (p);
+      if (x_len < 2)                        return rce - 1;
+      if (strchr (x_hint1, p[0]) == NULL)   return rce - 2;
+      if (strchr (x_hint2, p[1]) == NULL)   return rce - 3;
+      strcpy (x_hint, p);
+      /*---(handle name)-----------------*/
+      p        = strtok (NULL  , q);
+      x_len    = strlen (p);
+      if (x_len < 4)                        return rce - 4;
       /*---(create node)-----------------*/
-      p         = strtok(recd, q);
-      if (p[0] == '_' || strncmp(p, "o___", 4) == 0) {
-         fgets(recd, MAXLINE, stdin);
-         if (recd[0] == '\n') break;
-         if (feof(stdin))     return 0;
-         continue;
-      }
-      curr      = NODE_create(p);
-      NODE_append(curr);
-      curr->id  = ++nnode;
-      curr->l[0]  = 'a' + (nnode / 26);
-      curr->l[1]  = 'a' + (nnode % 26);
-      curr->l[2]  = '\0';
+      x_curr   = NODE_create (p);
+      NODE_append (x_curr);
+      /*---(add hint)--------------------*/
+      x_curr->id  = ++nnode;
+      strcpy (x_curr->l, x_hint);
       /*---(get file name)---------------*/
       p = strtok(NULL, q);
       p = strtok(NULL, q);
       p = strtok(NULL, q);
-      if (strcmp(sfile, p) != 0) {
-         strcpy(sfile, p);
+      p = strtok(NULL, q);
+      if (strcmp (x_sfile, p) != 0) {
+         strcpy (x_sfile, p);
          ++nfile;
       }
-      curr->file = nfile;
+      x_curr->file = nfile;
       /*---(prepare for next)------------*/
-      DEBUG_I  printf("   (%3d) %s\n", curr->id, curr->s);
-      /*---(read next)-------------------*/
-      fgets(recd, MAXLINE, stdin);
-      if (recd[0] == '\n') break;
-      if (feof(stdin))     return 0;
+      DEBUG_I  printf("   (%3d) %s\n", x_curr->id, x_curr->s);
    }
+   rce -= 10;
+   /*---(test for trouble)---------------*/
+   --rce;  if (nnode <= 0)        return rce;
+   /*---(prep stats)---------------------*/
    single = 360.0 / nnode;
    /*---(complete)-----------------------*/
    DEBUG_I  printf("NODE_read     () end\n\n");

@@ -154,8 +154,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5b"
-#define VER_TXT   "caught last variable definition programs to allow compile"
+#define VER_NUM   "v0.5c"
+#define VER_TXT   "updated node reading logic to fit latest HTAG.tags standard"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -224,7 +224,7 @@ extern char      action;
 #define   INC_SPEED   0.05
 #define   MAX_SPEED   0.25
 
-#define   MAXLINE   500
+#define   MAXLINE    2000
 
 extern char      debug_top;
 extern char      debug_mem;

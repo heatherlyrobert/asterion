@@ -60,7 +60,7 @@ char      mask        = 'b';
 /*====================------------------------------------====================*/
 static void      o___UTILITY_________________o (void) {;}
 
-char         /*-> tbd --------------------------------[ leaf   [gz.320.021.00]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.320.021.00]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
 trig_load (void)
 {
    int   i;
@@ -73,7 +73,7 @@ trig_load (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.031--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.212.!]-*/ /*-[--.---.---.--]-*/
 mask_big   (void)
 {
    Pixmap    bounds    = XCreatePixmap(DISP, BASE, win_w, win_h, 1);
@@ -93,7 +93,7 @@ mask_big   (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
 mask_small (void)
 {
    Pixmap    bounds    = XCreatePixmap(DISP, BASE, win_w, win_h, 1);
@@ -113,7 +113,7 @@ mask_small (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.430.021.06]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 mask_tiny  (void)
 {
    Pixmap    bounds    = XCreatePixmap(DISP, BASE, win_w, win_h, 1);
@@ -133,7 +133,7 @@ mask_tiny  (void)
    return 0;
 }
 
-long         /*-> tbd --------------------------------[ leaf   [gn.420.021.00]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+long         /*-> tbd --------------------------------[ leaf   [gn.420.021.00]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
 time_stamp()                      /* PURPOSE : timestamp in microseconds      */
 {
    /* second
@@ -151,7 +151,7 @@ time_stamp()                      /* PURPOSE : timestamp in microseconds      */
 
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.001.31]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.430.001.31]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
 full_refresh       (void)
 {
    texture_free();
@@ -174,7 +174,7 @@ full_refresh       (void)
 /*====================------------------------------------====================*/
 static void      o___FONTS___________________o (void) {;}
 
-char         /*-> tbd --------------------------------[ leaf   [gz.420.001.20]*/ /*-[01.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.420.001.20]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
 font_load(void)
 {
    txf_sm = yFONT_load(face_sm);
@@ -191,7 +191,7 @@ font_load(void)
 }
 
 
-char         /*-> tbd --------------------------------[ leaf   [gz.210.001.00]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.210.001.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 font_delete(void)
 {
    yFONT_free(txf_sm);
@@ -206,7 +206,7 @@ font_delete(void)
 /*====================------------------------------------====================*/
 static void      o___OPENGL__________________o (void) {;}
 
-char         /*-> tbd --------------------------------[ leaf   [gz.970.031.10]*/ /*-[02.0080.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.970.031.10]*/ /*-[02.0080.102.!]-*/ /*-[--.---.---.--]-*/
 draw_texture (void)
 {
    char  temp[100];
@@ -247,7 +247,7 @@ draw_texture (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.BA0.071.00]*/ /*-[02.0040.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.BA0.071.00]*/ /*-[02.0040.013.!]-*/ /*-[--.---.---.--]-*/
 draw_back          (void)
 {
    /*> printf("drawing\n");                                                           <*/
@@ -303,7 +303,7 @@ draw_back          (void)
 
 char  gcolor = 0;
 
-char         /*-> tbd --------------------------------[ leaf   [gz.450.201.10]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.450.201.10]*/ /*-[00.0000.024.!]-*/ /*-[--.---.---.--]-*/
 color_set          (char a_base, float a_alpha)
 {
    switch (a_base) {
@@ -321,7 +321,7 @@ color_set          (char a_base, float a_alpha)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.WQ0.0C1.D0]*/ /*-[04.0060.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.WQ0.0C1.D0]*/ /*-[04.0060.013.!]-*/ /*-[--.---.---.--]-*/
 draw_edges         (void)
 {
    int   r = 15 + 90 * 2.5;
@@ -357,15 +357,15 @@ draw_edges         (void)
       } else if (curr->l <= 3) {
          glLineWidth(2.0);
       } else if (curr->l <= 4) {
-         glLineWidth(1.0);
+         glLineWidth(2.0);
       } else if (curr->l <= 6) {
-         glLineWidth(1.0);
-         glEnable(GL_LINE_STIPPLE);
-         glLineStipple(1, 0xAAAA);
+         glLineWidth(2.0);
+         /*> glEnable(GL_LINE_STIPPLE);                                               <*/
+         /*> glLineStipple(1, 0xAAAA);                                                <*/
       } else {
-         glLineWidth(1.0);
-         glEnable(GL_LINE_STIPPLE);
-         glLineStipple(1, 0xA0A0);
+         glLineWidth(2.0);
+         /*> glEnable(GL_LINE_STIPPLE);                                               <*/
+         /*> glLineStipple(1, 0xA0A0);                                                <*/
       }
       if (curr->s != curr->e) {
          /*---(center point)----------------*/
@@ -479,7 +479,7 @@ draw_edges         (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.013.!]-*/ /*-[--.---.---.--]-*/
 draw_slices        (void)
 {
    /*---(locals)---------------------------*/
@@ -661,20 +661,25 @@ draw_slices        (void)
          if (nnode < 100) {
             /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  10, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  6, YF_MIDCEN, curr->l);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  10, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  6, YF_MIDLEF, curr->s);
          } else if (nnode < 150) {
             /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
             glTranslatef(  2.0,  0.0,  0.0);
             yFONT_print(txf_sm,  8, YF_MIDCEN, curr->l);
             glTranslatef( 12.0,  0.0,  0.0);
             yFONT_print(txf_sm,  8, YF_MIDLEF, curr->s);
+         } else if (nnode < 300) {
+            glTranslatef(  2.0,  0.0,  0.0);
+            yFONT_print(txf_sm,  6, YF_MIDCEN, curr->l);
+            glTranslatef( 12.0,  0.0,  0.0);
+            yFONT_print(txf_sm,  6, YF_MIDLEF, curr->s);
          } else {
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  3, YF_MIDCEN, curr->l);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  3, YF_MIDLEF, curr->s);
          }
       } glPopMatrix();
       curr = curr->n;
@@ -682,7 +687,7 @@ draw_slices        (void)
    return 0;
 }
 
-char         /*-> create a texture -------------------[ leaf   [gz.640.001.00]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> create a texture -------------------[ leaf   [gz.640.001.00]*/ /*-[00.0000.013.!]-*/ /*-[--.---.---.--]-*/
 texture_create     (void)
 {
    /*---(generate)-----------------------*/
@@ -712,7 +717,7 @@ texture_create     (void)
    return 0;
 }
 
-char         /*-> clear the texture and framebuffer --[ leaf   [gz.311.001.00]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> clear the texture and framebuffer --[ leaf   [gz.311.001.00]*/ /*-[00.0000.013.!]-*/ /*-[--.---.---.--]-*/
 texture_free       (void)
 {
    DEBUG_G  printf("texture_free        () beg\n");
@@ -725,7 +730,7 @@ texture_free       (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.B63.021.00]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.B63.021.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 draw_main          (void)
 {
    /*---(begin)--------------------------*/
@@ -778,7 +783,7 @@ draw_main          (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ shoot  [gz.440.001.00]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ shoot  [gz.440.001.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 draw_init(void)
 {
    glShadeModel (GL_SMOOTH);
@@ -798,7 +803,7 @@ draw_init(void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.430.221.10]*/ /*-[00.0000.021--]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.430.221.10]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 draw_resize(uint a_w, uint a_h)
 {
    if (a_h == 0) a_h = 1;

@@ -10,7 +10,7 @@ tEDGE   *etail  = NULL;
 
 
 
-tEDGE*       /*-> create a new edge ------------------[ leaf   [gp.420.011.00]*/ /*-[10.0000.011--]-*/ /*-[--.---.---.--]-*/
+tEDGE*       /*-> create a new edge ------------------[ leaf   [gp.420.011.00]*/ /*-[10.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_create        (void)
 {
    /*---(locals)-------------------------*/
@@ -28,7 +28,7 @@ EDGE_create        (void)
    return temp;
 }
 
-char         /*-> append node to the end -------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> append node to the end -------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_append        (tEDGE  *a_edge)
 {
    if (ehead == NULL) {
@@ -43,7 +43,7 @@ EDGE_append        (tEDGE  *a_edge)
    return 0;
 }
 
-char         /*-> calculate the indent ---------------[ leaf   [gc.430.141.10]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> calculate the indent ---------------[ leaf   [gc.430.141.10]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_level         (char   *a_name)
 {
    /*---(locals)-------------------------*/
@@ -62,7 +62,7 @@ EDGE_level         (char   *a_name)
    return level;
 }
 
-char         /*-> find a specific edge ---------------[ leaf   [gc.310.212.20]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> find a specific edge ---------------[ leaf   [gc.310.212.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_find          (tNODE *a_source, tNODE *a_end)
 {
    tEDGE    *curr   = ehead;
@@ -73,7 +73,7 @@ EDGE_find          (tNODE *a_source, tNODE *a_end)
    return 0;
 }
 
-char         /*-> establish call list ----------------[ leaf   [gc.E91.0A3.G0]*/ /*-[02.0004.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> establish call list ----------------[ ------ [gc.E91.0A3.G5]*/ /*-[02.0004.102.!]-*/ /*-[--.---.---.--]-*/
 EDGE_read          (void)
 {
    DEBUG_I  printf("EDGE_read     () begin\n");
@@ -82,8 +82,8 @@ EDGE_read          (void)
    int       len       = 0;            /* uncleaned string len                */
    char*     p         = NULL;         /* strtok() parsing pointer            */
    char      q[5]      = "(";          /* strtok() delimiters                 */
-   tNODE    *parent    = NULL;         /* parent node                         */
-   tNODE    *found     = NULL;         /* tail of call                        */
+   tNODE    *x_orig    = NULL;         /* origin node                         */
+   tNODE    *x_dest    = NULL;         /* tail of call                        */
    tEDGE    *curr      = NULL;         /* new node                            */
    tNODE    *layer[40] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
    int       level     = 1;
@@ -111,27 +111,27 @@ EDGE_read          (void)
       }
       strltrim (p, ySTR_BOTH, 100);
       /*---(endpoints)-------------------*/
-      found     = NODE_find(p);
-      parent    = layer[level - 1];
-      exists    = EDGE_find (parent, found);
+      x_orig    = layer [level - 1];
+      x_dest    = NODE_find(p);
+      exists    = EDGE_find (x_orig, x_dest);
       /*---(add edge)--------------------*/
-      if (parent != NULL && found != NULL && exists == 0) {
-         if (strcmp (found->s, parent->s) == 0)  ++parent->r;
+      if (x_orig != NULL && x_dest != NULL && exists == 0) {
+         if (strcmp (x_dest->s, x_orig->s) == 0)  ++x_orig->r;
          curr      = EDGE_create();
          EDGE_append(curr);
-         curr->s   = parent;
-         curr->e   = found;
+         curr->s   = x_orig;
+         curr->e   = x_dest;
          curr->l   = level;
-         ++found->ins;
-         DEBUG_I  printf("   %-20s (%2d) %-20s   #=%2d\n", parent->s, level, found->s, parent->c);
-         ++parent->c;
-         curr->num = parent->c;
+         ++x_dest->ins;
+         DEBUG_I  printf("   %-20s (%2d) %-20s   #=%2d\n", x_orig->s, level, x_dest->s, x_orig->c);
+         ++x_orig->c;
+         curr->num = x_orig->c;
       } else if (strncmp(p, "printf", 6) == 0) {
-         if (parent != NULL) ++parent->cli;
+         if (x_orig != NULL) ++x_orig->cli;
       } else if (strncmp(p, "gl", 2) == 0) {
-         if (parent != NULL) ++parent->glx;
+         if (x_orig != NULL) ++x_orig->glx;
       }
-      layer [level] = found;
+      layer [level] = x_dest;
       /*---(prepare next)----------------*/
       fgets(recd, MAXLINE, stdin);
       if (feof(stdin))     break;

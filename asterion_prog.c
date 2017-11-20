@@ -4,7 +4,7 @@
 
 
 
-char         /*-> process the command line -----------[ leaf   [gz.430.221.50]*/ /*-[01.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> process the command line -----------[ leaf   [gz.430.221.50]*/ /*-[01.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_args          (int argc, char *argv[])
 {
    char *a = NULL;
@@ -22,18 +22,22 @@ PROG_args          (int argc, char *argv[])
    return 0;
 }
 
-char         /*-> drive program startup --------------[ leaf   [gz.530.021.00]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program startup --------------[ ------ [gz.530.021.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_begin         (void)
 {
    /*---(locals)--------------------------------*/
-   long      gpu_mem_bef = 0;
-   long      gpu_mem_aft = 0;
+   char        rc          =    0;
    /*---(open window)---------------------------*/
    yXINIT_start(win_title, win_w, win_h, YX_FOCUSABLE, YX_FIXED, YX_SILENT);
    /*---(load basics)---------------------------*/
    font_load();
    trig_load();
-   NODE_read();
+   rc = NODE_read();
+
+   printf ("nnode = %d\n", nnode);
+   printf ("rc    = %d\n", rc);
+
+
    EDGE_read();
    /*---(create texture)------------------------*/
    draw_init();
@@ -45,7 +49,7 @@ PROG_begin         (void)
    return 0;
 }
 
-char         /*-> process xwindows events ------------[ ------ [gz.RV0.0E1.Q2]*/ /*-[05.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> process xwindows events ------------[ ------ [gz.RV0.0E1.Q3]*/ /*-[05.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_event         ()
 {
    int   frames = 0;
@@ -176,7 +180,7 @@ PROG_event         ()
    return 0;
 }
 
-char         /*-> drive program closure --------------[ leaf   [gz.210.001.00]*/ /*-[00.0000.011--]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program closure --------------[ ------ [gz.210.001.01]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_end           (void)
 {
    font_delete();
