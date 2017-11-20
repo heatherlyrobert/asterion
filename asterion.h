@@ -154,8 +154,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5a"
-#define VER_TXT   "broke into modules for maintainability"
+#define VER_NUM   "v0.5b"
+#define VER_TXT   "caught last variable definition programs to allow compile"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -181,9 +181,9 @@ struct cNODE {
    tNODE    *p;                   /* pointer to parent                        */
    tNODE    *n;                   /* pointer to next sibling                  */
 };
-int       nnode   = 0;
-tNODE    *nhead   = NULL;
-tNODE    *ntail   = NULL;
+extern int       nnode;
+extern tNODE    *nhead;
+extern tNODE    *ntail;
 
 typedef struct cEDGE tEDGE;
 struct cEDGE {
@@ -194,9 +194,9 @@ struct cEDGE {
    tEDGE    *p;                   /* pointer to prev sibling                  */
    tEDGE    *n;                   /* pointer to next sibling                  */
 };
-int      nedge  = 0;
-tEDGE   *ehead  = NULL;
-tEDGE   *etail  = NULL;
+extern int      nedge;
+extern tEDGE   *ehead;
+extern tEDGE   *etail;
 
 float  ctrl [3][3];
 float  ctrlr[4][3];

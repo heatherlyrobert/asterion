@@ -4,6 +4,12 @@
 
 
 
+int       nnode   = 0;
+tNODE    *nhead   = NULL;
+tNODE    *ntail   = NULL;
+
+
+
 tNODE*       /*-> create a new node ------------------[ leaf   [gp.960.121.20]*/ /*-[11.0000.011--]-*/ /*-[--.---.---.--]-*/
 NODE_create        (char *a_name)
 {

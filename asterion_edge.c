@@ -4,6 +4,12 @@
 
 
 
+int      nedge  = 0;
+tEDGE   *ehead  = NULL;
+tEDGE   *etail  = NULL;
+
+
+
 tEDGE*       /*-> create a new edge ------------------[ leaf   [gp.420.011.00]*/ /*-[10.0000.011--]-*/ /*-[--.---.---.--]-*/
 EDGE_create        (void)
 {
