@@ -18,12 +18,12 @@ EDGE_create        (void)
    /*---(create)-------------------------*/
    temp      = (tEDGE *) malloc(sizeof(tEDGE));
    /*---(initialize)---------------------*/
-   temp->s     = NULL;
-   temp->e     = NULL;
-   temp->l     = 0;
-   temp->num   = 0;
-   temp->p     = NULL;
-   temp->n     = NULL;
+   temp->beg   = NULL;
+   temp->end   = NULL;
+   temp->lvl   = 0;
+   temp->seq   = 0;
+   temp->prev  = NULL;
+   temp->next  = NULL;
    /*---(complete)-----------------------*/
    return temp;
 }
@@ -35,8 +35,8 @@ EDGE_append        (tEDGE  *a_edge)
       ehead     = a_edge;
       etail     = a_edge;
    } else {
-      etail->n  = a_edge;
-      a_edge->p = etail;
+      etail->next  = a_edge;
+      a_edge->prev = etail;
       etail     = a_edge;
    }
    /*---(complete)-----------------------*/
@@ -65,10 +65,10 @@ EDGE_level         (char   *a_name)
 char         /*-> find a specific edge ---------------[ leaf   [gc.310.212.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_find          (tNODE *a_source, tNODE *a_end)
 {
-   tEDGE    *curr   = ehead;
-   while (curr != NULL) {
-      if (curr->s == a_source && curr->e == a_end) return 1;
-      curr  = curr->n;
+   tEDGE    *x_edge   = ehead;
+   while (x_edge != NULL) {
+      if (x_edge->beg == a_source && x_edge->end == a_end) return 1;
+      x_edge  = x_edge->next;
    }
    return 0;
 }
@@ -78,65 +78,86 @@ EDGE_read          (void)
 {
    DEBUG_I  printf("EDGE_read     () begin\n");
    /*---(locals)--------------------------------*/
-   char      recd [MAXLINE] = "";      /* record from stdin                   */
-   int       len       = 0;            /* uncleaned string len                */
-   char*     p         = NULL;         /* strtok() parsing pointer            */
-   char      q[5]      = "(";          /* strtok() delimiters                 */
-   tNODE    *x_orig    = NULL;         /* origin node                         */
-   tNODE    *x_dest    = NULL;         /* tail of call                        */
-   tEDGE    *curr      = NULL;         /* new node                            */
-   tNODE    *layer[40] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-   int       level     = 1;
-   char      exists    = 0;
-   /*---(read first)---------------------*/
-   fgets(recd, MAXLINE, stdin);
-   if (feof(stdin))     return 0;
-   /*---(clear blanks)-------------------*/
+   char        rce         =  -10;
+   char        x_recd      [MAXLINE] = "";  /* record from stdin                   */
+   char*       p           = NULL;          /* strtok() parsing pointer            */
+   char       *q           = "(";           /* strtok() delimiters                 */
+   tNODE      *x_orig      = NULL;         /* origin node                         */
+   tNODE      *x_dest      = NULL;         /* tail of call                        */
+   tEDGE      *x_edge      = NULL;         /* new node                            */
+   tNODE      *x_layers    [40] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+   int         x_level     = 1;
+   char        x_exists    = 0;
+   int         x_len       = 0;
+   int         x_total     = 0;
+   int         x_dups      = 0;
+   int         x_bado      = 0;
+   int         x_badd      = 0;
+   /*---(read edges)---------------------*/
    while (1) {
-      len = strlen(recd);
-      if (recd[0] != '\n') break;
-      fgets(recd, MAXLINE, stdin);
-      if (feof(stdin))     return 0;
-   }
-   /*---(read functions)-----------------*/
-   while (1) {
-      /*---(name and level)--------------*/
-      p         = strtok(recd, q);
-      level     = EDGE_level(p);
-      if (level > 39) {
-         fgets(recd, MAXLINE, stdin);
-         if (feof(stdin))     break;
-         if (recd[0] == '\n') break;
-         continue;
+      /*---(read line)-------------------*/
+      fgets (x_recd, MAXLINE, stdin);
+      if (feof (stdin))                     break;
+      /*---(filter)----------------------*/
+      if (x_recd [0] == '\n') {
+         if (x_total <= 0)                  continue;
+         else                               break;
       }
+      ++x_total;
+      /*---(name and level)--------------*/
+      p         = strtok (x_recd, q);
+      x_len     = strlen (p);
+      x_level   = EDGE_level (p);
+      if (x_level <  0)                       continue;
+      if (x_level > 39)                       continue;
       strltrim (p, ySTR_BOTH, 100);
       /*---(endpoints)-------------------*/
-      x_orig    = layer [level - 1];
+      x_orig    = x_layers [x_level - 1];
       x_dest    = NODE_find(p);
-      exists    = EDGE_find (x_orig, x_dest);
+      x_exists  = EDGE_find (x_orig, x_dest);
+      /*---(filter)----------------------*/
+      if (x_exists == 1) {
+         ++x_dups;
+         continue;
+      }
+      if (x_dest == NULL) {
+         ++x_badd;
+         continue;
+      }
+      x_layers [x_level] = x_dest;
+      if (x_orig == NULL) {
+         ++x_bado;
+         continue;
+      }
       /*---(add edge)--------------------*/
-      if (x_orig != NULL && x_dest != NULL && exists == 0) {
-         if (strcmp (x_dest->s, x_orig->s) == 0)  ++x_orig->r;
-         curr      = EDGE_create();
-         EDGE_append(curr);
-         curr->s   = x_orig;
-         curr->e   = x_dest;
-         curr->l   = level;
+      if (x_orig != NULL && x_dest != NULL && x_exists == 0) {
+         if (strcmp (x_dest->name, x_orig->name) == 0)  ++x_orig->r;
+         x_edge    = EDGE_create();
+         EDGE_append(x_edge);
+         x_edge->beg   = x_orig;
+         x_edge->end   = x_dest;
+         x_edge->lvl   = x_level;
          ++x_dest->ins;
-         DEBUG_I  printf("   %-20s (%2d) %-20s   #=%2d\n", x_orig->s, level, x_dest->s, x_orig->c);
-         ++x_orig->c;
-         curr->num = x_orig->c;
+         DEBUG_I  printf("   %-20s (%2d) %-20s   #=%2d\n", x_orig->name, x_level, x_dest->name, x_orig->nchild);
+         ++x_orig->nchild;
+         x_edge->seq = x_orig->nchild;
+         ++nedge;
       } else if (strncmp(p, "printf", 6) == 0) {
          if (x_orig != NULL) ++x_orig->cli;
       } else if (strncmp(p, "gl", 2) == 0) {
          if (x_orig != NULL) ++x_orig->glx;
       }
-      layer [level] = x_dest;
-      /*---(prepare next)----------------*/
-      fgets(recd, MAXLINE, stdin);
-      if (feof(stdin))     break;
-      if (recd[0] == '\n') break;
+      /*---(prepare for next)------------*/
    }
+   rce -= 10;
+   /*---(test for trouble)---------------*/
+   --rce;  if (nedge <= 0)        return rce;
+   /*---(summary)------------------------*/
+   printf ("total = %d\n", x_total);
+   printf ("dups  = %d\n", x_dups );
+   printf ("bado  = %d\n", x_bado );
+   printf ("badd  = %d\n", x_badd );
+   printf ("nedge = %d\n", nedge);
    /*---(complete)-----------------------*/
    DEBUG_I  printf("EDGE_read     () end\n\n");
    return 0;

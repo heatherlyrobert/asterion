@@ -10,6 +10,23 @@ tNODE    *ntail   = NULL;
 
 
 
+char         /*-> assign arc to nodes ----------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+NODE_place_default   (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   tNODE      *x_node      = nhead;
+   float       x_arc       = 0;
+   /*---(prepare)------------------------*/
+   x_arc   = 360.0 / nnode;
+   /*---(walk nodes)---------------------*/
+   while (x_node != NULL) {
+      x_node->arc = x_arc;
+      x_node  = x_node->next;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 tNODE*       /*-> create a new node ------------------[ leaf   [gp.960.121.20]*/ /*-[11.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_create        (char *a_name)
 {
@@ -22,18 +39,18 @@ NODE_create        (char *a_name)
    temp->id    = 0;
    temp->type  = 0;
    temp->file  = 0;
-   strcpy(temp->l, "");
-   strcpy(temp->s, "");
-   strcpy(temp->d, "");
-   temp->ins   = 0;
-   temp->c     = 0;
-   temp->t     = 0;
-   temp->cli   = 0;
-   temp->glx   = 0;
-   temp->f     = 1;
-   temp->p     = NULL;
-   temp->n     = NULL;
-   temp->r     = 0;
+   strcpy (temp->hint, "");
+   strcpy (temp->name, "");
+   strcpy (temp->desc, "");
+   temp->ins    = 0;
+   temp->nchild = 0;
+   temp->nheir  = 0;
+   temp->cli    = 0;
+   temp->glx    = 0;
+   temp->f      = 1;
+   temp->prev   = NULL;
+   temp->next   = NULL;
+   temp->r      = 0;
    /*---(parse name)------------------*/
    temp->type  = 'f';
    len = strlen(a_name);
@@ -47,7 +64,7 @@ NODE_create        (char *a_name)
       a_name [len] = '\0';
    }
    strltrim (a_name, ySTR_BOTH, 100);
-   strncpy(temp->s, a_name,  20);
+   strncpy(temp->name, a_name,  20);
    /*---(complete)-----------------------*/
    return temp;
 }
@@ -59,9 +76,9 @@ NODE_append        (tNODE  *a_node)
       nhead     = a_node;
       ntail     = a_node;
    } else {
-      ntail->n  = a_node;
-      a_node->p = ntail;
-      ntail     = a_node;
+      ntail->next  = a_node;
+      a_node->prev = ntail;
+      ntail        = a_node;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -73,11 +90,11 @@ NODE_find          (char *a_name)
    tNODE    *curr   = nhead;
    tNODE    *found  = NULL;
    while (curr != NULL) {
-      if (strcmp(curr->s, a_name) == 0) {
+      if (strcmp(curr->name, a_name) == 0) {
          found = curr;
          break;
       }
-      curr  = curr->n;
+      curr  = curr->next;
    }
    return found;
 }
@@ -97,16 +114,7 @@ NODE_read          (void)
    char        x_sfile       [30]   = "";     /* saved name of input file       */
    char       *x_hint1     = "abcdefghijklmnopqrstuvwxyz";
    char       *x_hint2     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-   /*---(read first)---------------------*/
-   fgets  (x_recd, MAXLINE, stdin);
-   --rce;  if (feof (stdin))      return rce;
-   /*---(clear blank lines)--------------*/
-   --rce;  while (1) {
-      x_len = strlen (x_recd);
-      if (x_recd[0] != '\n')      break;
-      fgets (x_recd, MAXLINE, stdin);
-      if (feof (stdin))           return rce;
-   }
+   int         x_total     = 0;
    /*---(read functions)-----------------*/
    --rce;
    while (1) {
@@ -114,7 +122,10 @@ NODE_read          (void)
       fgets (x_recd, MAXLINE, stdin);
       if (feof (stdin))                     return rce;
       /*---(filter)----------------------*/
-      if (x_recd [0] == '\n')               break;
+      if (x_recd [0] == '\n') {
+         if (x_total <= 0)                  continue;
+         else                               break;
+      }
       /*---(handle hint)-----------------*/
       p        = strtok (x_recd, q);
       x_len    = strlen (p);
@@ -131,7 +142,7 @@ NODE_read          (void)
       NODE_append (x_curr);
       /*---(add hint)--------------------*/
       x_curr->id  = ++nnode;
-      strcpy (x_curr->l, x_hint);
+      strcpy (x_curr->hint, x_hint);
       /*---(get file name)---------------*/
       p = strtok(NULL, q);
       p = strtok(NULL, q);
@@ -143,13 +154,18 @@ NODE_read          (void)
       }
       x_curr->file = nfile;
       /*---(prepare for next)------------*/
-      DEBUG_I  printf("   (%3d) %s\n", x_curr->id, x_curr->s);
+      ++x_total;
+      DEBUG_I  printf("   (%3d) %s\n", x_curr->id, x_curr->name);
    }
    rce -= 10;
    /*---(test for trouble)---------------*/
    --rce;  if (nnode <= 0)        return rce;
    /*---(prep stats)---------------------*/
    single = 360.0 / nnode;
+   NODE_place_default ();
+   /*---(summary)------------------------*/
+   printf ("total = %d\n", x_total);
+   printf ("nnode = %d\n", nnode);
    /*---(complete)-----------------------*/
    DEBUG_I  printf("NODE_read     () end\n\n");
    return 0;

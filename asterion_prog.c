@@ -33,12 +33,7 @@ PROG_begin         (void)
    font_load();
    trig_load();
    rc = NODE_read();
-
-   printf ("nnode = %d\n", nnode);
-   printf ("rc    = %d\n", rc);
-
-
-   EDGE_read();
+   rc = EDGE_read();
    /*---(create texture)------------------------*/
    draw_init();
    draw_main();
@@ -62,6 +57,7 @@ PROG_event         ()
    char       the_key[5];
    int        the_bytes;
    char       done = 0;
+   tNODE     *x_node       = nhead;
    while (!done) {
       if (XPending(DISP)) {
          XNextEvent(DISP, &EVNT);
@@ -118,7 +114,6 @@ PROG_event         ()
             } else {
                char   ch  = the_key[0];
                char   temp[10];
-               tNODE *curr = nhead;
                int    i;
                if        (search == '/' && ch != 13 && ch != 27) {
                   if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_' || ch == 8) {
@@ -137,10 +132,10 @@ PROG_event         ()
                                flen = strlen(focus);
                                break;
                   case ';': for (i = 0; i < nnode; ++i) {
-                               if (x_focus[2] == curr->l[0] && x_focus[3] == curr->l[1]) {
-                                  strcpy(focus, curr->s);
+                               if (x_focus[2] == x_node->hint [0] && x_focus[3] == x_node->hint [1]) {
+                                  strcpy (focus, x_node->name);
                                }
-                               curr = curr->n;
+                               x_node = x_node->next;
                             }
                             flen = strlen(focus);
                             break;

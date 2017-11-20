@@ -154,8 +154,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5c"
-#define VER_TXT   "updated node reading logic to fit latest HTAG.tags standard"
+#define VER_NUM   "v0.5d"
+#define VER_TXT   "updated edge reading logic to be cleaner"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -168,35 +168,40 @@ struct cNODE {
    int       id;                  /* id number                                */
    char      type;                /* type -- function or separator            */
    int       file;                /* file number                              */
-   char      l[  5];              /* label                                    */
-   char      s[ 21];              /* short name                               */
-   char      d[200];              /* description                              */
+   char      hint       [  5];    /* label                                    */
+   char      name       [ 21];    /* short name                               */
+   char      desc       [200];    /* description                              */
    int       ins;                 /* count of places that call this function  */
-   int       c;                   /* count of direct children                 */
-   int       t;                   /* count of total decendents                */
+   int       nchild;              /* count of direct children                 */
+   int       nheir;               /* count of total decendents                */
    char      cli;                 /* sends text to stdout                     */
    char      glx;                 /* uses open gl                             */
    char      f;                   /* focus flag     -- 0=hide, 1=show         */
    char      r;                   /* recursive flag -- 0=no  , 1=yes          */
-   tNODE    *p;                   /* pointer to parent                        */
-   tNODE    *n;                   /* pointer to next sibling                  */
+   float     arc;                 /* space on curve                           */
+   tNODE    *prev;                /* pointer to parent                        */
+   tNODE    *next;                /* pointer to next sibling                  */
 };
 extern int       nnode;
 extern tNODE    *nhead;
 extern tNODE    *ntail;
 
+
+
 typedef struct cEDGE tEDGE;
 struct cEDGE {
-   tNODE    *s;                   /* pointer to start of edge                 */
-   tNODE    *e;                   /* pointer to end of edge                   */
-   char      l;                   /* level/depth of connection                */
-   int       num;                 /* sequential number at level               */
-   tEDGE    *p;                   /* pointer to prev sibling                  */
-   tEDGE    *n;                   /* pointer to next sibling                  */
+   tNODE    *beg;                 /* pointer to beginning of edge             */
+   tNODE    *end;                 /* pointer to end of edge                   */
+   char      lvl;                 /* level/depth of connection                */
+   int       seq;                 /* sequential number at level               */
+   tEDGE    *prev;                /* pointer to prev sibling                  */
+   tEDGE    *next;                /* pointer to next sibling                  */
 };
 extern int      nedge;
 extern tEDGE   *ehead;
 extern tEDGE   *etail;
+
+
 
 float  ctrl [3][3];
 float  ctrlr[4][3];
@@ -262,7 +267,7 @@ char       PROG_end          (void);
 char       draw_init         (void);
 char       draw_main         (void);
 char       draw_back         (void);
-char       draw_slices       (void);
+char       draw_nodes        (void);
 char       draw_edges        (void);
 char       draw_texture      (void);
 char       texture_create    (void);

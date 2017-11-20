@@ -294,6 +294,17 @@ draw_back          (void)
          glVertex3f(x, y,  -5.0);
       }
    }glEnd();
+   /*---(external)-------------------------*/
+   r =  10;
+   glColor4f (0.0f, 0.0f, 0.0f, 0.3f);
+   glBegin(GL_POLYGON); {
+      for (d = 0; d <= 365; d += 5) {
+         rad = ((float) (d) / 360.0) * (2 * 3.1415927);
+         x = (r * sin(rad));
+         y = (r * cos(rad));
+         glVertex3f(x, y,  40.0);
+      }
+   } glEnd();
    /*---(show radial)----------------------*/
    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
@@ -321,9 +332,27 @@ color_set          (char a_base, float a_alpha)
    return 0;
 }
 
+char
+DRAW_edge_end      (tEDGE *a_edge, float a_arc, float a_radius)
+{
+   float       x_degrees   = 0.0;
+   float       x_radians   = 0.0;
+   float       x           = 0.0;
+   float       y           = 0.0;
+   x_degrees = (a_edge->end->id + (a_edge->end->nchild / 2.0)) * a_arc;
+   x_radians = ((float) (x_degrees) / 360.0) * (2 * 3.1415927);
+   x         = (a_radius * sin (x_radians));
+   y         = (a_radius * cos (x_radians));
+   glPointSize(10.0);
+   glBegin(GL_POINTS);
+   glVertex3f(   x,   y, 50.0);
+   glEnd();
+}
+
 char         /*-> tbd --------------------------------[ leaf   [gz.WQ0.0C1.D0]*/ /*-[04.0060.013.!]-*/ /*-[--.---.---.--]-*/
 draw_edges         (void)
 {
+   tEDGE      *x_edge      = NULL;
    int   r = 15 + 90 * 2.5;
    float d;
    float rad;
@@ -331,49 +360,51 @@ draw_edges         (void)
    float arc = 360.0 / nnode;
    float     i    = 0;                       /* loop iterator                 */
    char      xcolor = 0;
-   tEDGE    *curr = ehead;
    char    xbegins = 0;
    char    xends   = 0;
    char      msg[200];
    /*> printf ("focus (%2d) <<%s>>\n", flen, focus);                                  <*/
-   while (curr != NULL) {
+   x_edge   = ehead;
+   while (x_edge != NULL) {
       if (flen > 0) {
-         xbegins = (strstr(curr->s->s, focus) == NULL) ? 0 : 1;
-         xends   = (strstr(curr->e->s, focus) == NULL) ? 0 : 1;
+         xbegins = (strstr(x_edge->beg->name, focus) == NULL) ? 0 : 1;
+         xends   = (strstr(x_edge->end->name, focus) == NULL) ? 0 : 1;
          /*> printf ("(%c) f=<<%-20.20s>>, s=<<%-20.20s>> (%d),  e=<<%-20.20s>> (%d)\n",   <* 
-          *>       edges, focus, curr->s->s, xbegins, curr->e->s, xends);                  <*/
+          *>       edges, focus, x_edge->beg->name, xbegins, x_edge->end->name, xends);                  <*/
          if        (edges == 's' &&  xbegins != 1) {
-            curr = curr->n; continue;
+            x_edge = x_edge->next; continue;
          } else if (edges == 'e' &&  xends   != 1) {
-            curr = curr->n; continue;
+            x_edge = x_edge->next; continue;
          } else if (edges == 'b' && (xends   != 1 && xbegins != 1)) {
-            curr = curr->n; continue;
+            x_edge = x_edge->next; continue;
          }
       }
-      /*> printf ("drawing %s\n", curr->s->s);                                        <*/
+      /*> printf ("drawing %s\n", x_edge->beg->name);                                        <*/
       glLineWidth(2.0);
-      if        (curr->l <= 2) {
-         glLineWidth(4.0);
-      } else if (curr->l <= 3) {
-         glLineWidth(2.0);
-      } else if (curr->l <= 4) {
-         glLineWidth(2.0);
-      } else if (curr->l <= 6) {
-         glLineWidth(2.0);
+      if        (x_edge->lvl <= 1) {
+         glLineWidth (15.0);
+      } else if (x_edge->lvl <= 2) {
+         glLineWidth (8.0);
+      } else if (x_edge->lvl <= 3) {
+         glLineWidth (6.0);
+      } else if (x_edge->lvl <= 4) {
+         glLineWidth (4.0);
+      } else if (x_edge->lvl <= 6) {
+         glLineWidth (2.0);
          /*> glEnable(GL_LINE_STIPPLE);                                               <*/
          /*> glLineStipple(1, 0xAAAA);                                                <*/
       } else {
-         glLineWidth(2.0);
+         glLineWidth (2.0);
          /*> glEnable(GL_LINE_STIPPLE);                                               <*/
          /*> glLineStipple(1, 0xA0A0);                                                <*/
       }
-      if (curr->s != curr->e) {
+      if (x_edge->beg != x_edge->end) {
          /*---(center point)----------------*/
          ctrl[1][0] =   0;
          ctrl[1][1] =   0;
          ctrl[1][2] =  40;
          /*---(start)-----------------------*/
-         d   = (curr->s->id + (curr->s->t / 2.0)) * arc;
+         d   = (x_edge->beg->id + (x_edge->beg->nchild / 2.0)) * arc;
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x  = (r * sin(rad));
          y  = (r * cos(rad));
@@ -381,7 +412,7 @@ draw_edges         (void)
          ctrl[0][1] =   y;
          ctrl[0][2] =  40;
          /*---(end)-------------------------*/
-         d   = (curr->e->id + (curr->e->t / 2.0)) * arc;
+         d   = (x_edge->end->id + (x_edge->end->nchild / 2.0)) * arc;
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x  = (r * sin(rad));
          y  = (r * cos(rad));
@@ -389,7 +420,7 @@ draw_edges         (void)
          ctrl[2][1] =   y;
          ctrl[2][2] =  40;
          /*---(draw)------------------------*/
-         xcolor = curr->s->id % 9;
+         xcolor = x_edge->beg->id % 9;
          color_set (xcolor, 1.0);
          glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl[0][0]);
          glEnable(GL_MAP1_VERTEX_3);
@@ -402,7 +433,7 @@ draw_edges         (void)
       } else {
          glDisable(GL_LINE_STIPPLE);
          /*---(start)-----------------------*/
-         d   = (curr->s->id + (curr->s->t / 2.0)) * arc;
+         d   = (x_edge->beg->id + (x_edge->beg->nchild / 2.0)) * arc;
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x   = (r * sin(rad));
          y   = (r * cos(rad));
@@ -427,7 +458,7 @@ draw_edges         (void)
          ctrlr[2][1] =   y;
          ctrlr[2][2] =  40;
          /*---(draw)------------------------*/
-         xcolor = curr->s->id % 9;
+         xcolor = x_edge->beg->id % 9;
          color_set (xcolor, 1.0);
          glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlr[0][0]);
          glEnable(GL_MAP1_VERTEX_3);
@@ -440,29 +471,22 @@ draw_edges         (void)
       }
       glDisable(GL_LINE_STIPPLE);
       /*---(dot)-------------------------*/
-      d   = (curr->e->id + (curr->e->t / 2.0)) * arc;
-      rad = ((float) (d) / 360.0) * (2 * 3.1415927);
-      x  = (r * sin(rad));
-      y  = (r * cos(rad));
-      glPointSize(10.0);
-      glBegin(GL_POINTS);
-      glVertex3f(   x,   y, 50.0);
-      glEnd();
+      DRAW_edge_end  (x_edge, arc, r);
       /*---(edge number)-----------------*/
       if (edges == 's') {
          glPushMatrix(); {
             glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-            d   = (curr->e->id + (curr->e->t / 2.0)) * arc;
+            d   = (x_edge->end->id + (x_edge->end->nchild / 2.0)) * arc;
             glRotatef ( 90 - d, 0.0f, 0.0f, 1.0f);
             glTranslatef (r - 30, 0.0, 40.0);
-            snprintf (msg, 200, "%d", curr->num);
+            snprintf (msg, 200, "%d", x_edge->seq);
             yFONT_print(txf_sm,  8, YF_MIDCEN, msg);
          } glPopMatrix();
       }
       /*---(edge number)-----------------*/
       /*> glPushMatrix(); {                                                           <* 
        *>    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                      <* 
-       *>    d   = (curr->e->id + (curr->e->t / 2.0)) * arc;                          <* 
+       *>    d   = (x_edge->end->id + (x_edge->end->nchild / 2.0)) * arc;                          <* 
        *>    glRotatef ( 90 - d, 0.0f, 0.0f, 1.0f);                                   <* 
        *>    glTranslatef (r, 0.0, 20.0);                                             <* 
        *>    glColor4f (0.8f, 0.8f, 0.8f, 1.0f);                                      <* 
@@ -474,16 +498,16 @@ draw_edges         (void)
        *>    } glEnd();                                                               <* 
        *> } glPopMatrix();                                                            <*/
       /*---(prepare for next)------------*/
-      curr = curr->n;
+      x_edge = x_edge->next;
    }
    return 0;
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.#Y0.0H1.J0]*/ /*-[05.00#0.013.!]-*/ /*-[--.---.---.--]-*/
-draw_slices        (void)
+draw_nodes         (void)
 {
    /*---(locals)---------------------------*/
-   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   tNODE      *x_node      = NULL;
    int   r = 0;
    float rad;
    float x, y;
@@ -494,25 +518,26 @@ draw_slices        (void)
    float     i    = 0;                       /* loop iterator                 */
    float alpha = 0.0f;
    float arc = 360.0 / nnode;
-   tNODE    *curr = nhead;
    int       lfile = 0;
    char    new_type = 'n';
-   while (curr != NULL) {
+   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   x_node   = nhead;
+   while (x_node != NULL) {
       /*---(establish color group)-------*/
-      gcolor = curr->id % 9;
-      if (curr->n == NULL && gcolor == 1) gcolor = 4;
+      gcolor = x_node->id % 9;
+      if (x_node->next == NULL && gcolor == 1) gcolor = 4;
       /*---(level based settings)--------*/
       /*> r   = 25 + 2.5 * 90;                                                        <*/
       r   = 25 + 2.5 * 90;
       alpha = 0.8f;
       /*---(level based settings)--------*/
-      d1  = (curr->id - 0.40) * arc;
-      d2  = (curr->id + curr->t + 0.40) * arc;
-      d   = (curr->id + (curr->t / 2.0)) * arc;
+      d1  = (x_node->id - 0.40) * arc;
+      d2  = (x_node->id + x_node->nchild + 0.40) * arc;
+      d   = (x_node->id + (x_node->nchild / 2.0)) * arc;
       glPushMatrix(); {
          /*---(file line)----------------*/
-         color_set (curr->file % 9, 0.3);
-         if (curr->file == lfile) d1  = (curr->id - 0.60) * arc;
+         color_set (x_node->file % 9, 0.3);
+         if (x_node->file == lfile) d1  = (x_node->id - 0.60) * arc;
          glBegin(GL_POLYGON); {
             glVertex3f(   0.0f,    0.0f, -15.0f);
             for (i = d1; i <= d2; i += 1) {
@@ -527,11 +552,11 @@ draw_slices        (void)
             glVertex3f(     x,      y, -15.0f);
             glVertex3f(   0.0f,    0.0f, -15.0f);
          } glEnd();
-         lfile = curr->file;
+         lfile = x_node->file;
          /*---(function)-----------------*/
          glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-         if (curr->type == 'f') color_set (gcolor, alpha);
-         d1  = (curr->id - 0.40) * arc;
+         if (x_node->type == 'f') color_set (gcolor, alpha);
+         d1  = (x_node->id - 0.40) * arc;
          glBegin(GL_POLYGON); {
             glVertex3f(   0.0f,    0.0f,   0.0f);
             for (i = d1; i <= d2; i += 1) {
@@ -561,30 +586,30 @@ draw_slices        (void)
             glVertex3f(   0.0f,    0.0f,   5.0f);
          } glEnd();
          /*---(separator)----------------*/
-         if (curr->type == 'f') {
-            glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-            d1  = (curr->id - 0.60) * arc;
-            glBegin(GL_POLYGON); {
-               glVertex3f(   0.0f,    0.0f, -10.0f);
-               for (i = d1; i <= d2; i += 1) {
-                  rad = ((float) (i) / 360.0) * (2 * 3.1415927);
-                  x  = ((r - 1) * sin(rad));
-                  y  = ((r - 1) * cos(rad));
-                  glVertex3f(     x,      y, -10.0f);
-               }
-               rad = ((float) (d2) / 360.0) * (2 * 3.1415927);
-               x  = ((r - 1) * sin(rad));
-               y  = ((r - 1) * cos(rad));
-               glVertex3f(      x,       y, -10.0f);
-               glVertex3f(   0.0f,    0.0f, -10.0f);
-            } glEnd();
-         }
+         /*> if (x_node->type == 'f') {                                               <* 
+          *>    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                   <* 
+          *>    d1  = (x_node->id - 0.60) * arc;                                      <* 
+          *>    glBegin(GL_POLYGON); {                                                <* 
+          *>       glVertex3f(   0.0f,    0.0f, -10.0f);                              <* 
+          *>       for (i = d1; i <= d2; i += 1) {                                    <* 
+          *>          rad = ((float) (i) / 360.0) * (2 * 3.1415927);                  <* 
+          *>          x  = ((r - 1) * sin(rad));                                      <* 
+          *>          y  = ((r - 1) * cos(rad));                                      <* 
+          *>          glVertex3f(     x,      y, -10.0f);                             <* 
+          *>       }                                                                  <* 
+          *>       rad = ((float) (d2) / 360.0) * (2 * 3.1415927);                    <* 
+          *>       x  = ((r - 1) * sin(rad));                                         <* 
+          *>       y  = ((r - 1) * cos(rad));                                         <* 
+          *>       glVertex3f(      x,       y, -10.0f);                              <* 
+          *>       glVertex3f(   0.0f,    0.0f, -10.0f);                              <* 
+          *>    } glEnd();                                                            <* 
+          *> }                                                                        <*/
          /*---(move to edge)-------------*/
          glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
          glRotatef( 90 - d, 0.0f, 0.0f, 1.0f);
          glTranslatef( r +  5,  0.0, 20.0);
          /*---(recursive)----------------*/
-         if (curr->r > 0) {
+         if (x_node->r > 0) {
             glPushMatrix(); {
                glTranslatef( -5.0,  0.0,   5.0);
                glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
@@ -596,93 +621,93 @@ draw_slices        (void)
             } glPopMatrix();
          }
          /*---(output marker)------------*/
-         if (curr->type == '-') {
-            glColor4f (0.4f, 0.4f, 0.4f, 1.0f);
-            glBegin(GL_POLYGON); {
-               glVertex3f( -15.0f,   -5.0f,  80.0f);
-               glVertex3f( -10.0f,    0.0f,  80.0f);
-               glVertex3f( -15.0f,    5.0f,  80.0f);
-               glVertex3f( -25.0f,    0.0f,  80.0f);
-            } glEnd();
-            glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-            glBegin(GL_LINE_STRIP); {
-               glVertex3f( -15.0f,   -5.0f,  80.0f);
-               glVertex3f( -10.0f,    0.0f,  80.0f);
-               glVertex3f( -15.0f,    5.0f,  80.0f);
-               glVertex3f( -25.0f,    0.0f,  80.0f);
-               glVertex3f( -15.0f,   -5.0f,  80.0f);
-            } glEnd();
-         } else {
-            if (curr->c > 0) {
-               if      (curr->c > 5) glColor4f (1.0f, 0.2f, 0.2f, 1.0f);
-               else if (curr->c > 2) glColor4f (1.0f, 1.0f, 0.2f, 1.0f);
-               else                  glColor4f (0.2f, 1.0f, 0.2f, 1.0f);
-               glBegin(GL_POLYGON); {
-                  glVertex3f( -15.0f,   -5.0f,  80.0f);
-                  glVertex3f( -10.0f,    0.0f,  80.0f);
-                  glVertex3f( -15.0f,    5.0f,  80.0f);
-                  glVertex3f( -25.0f,    0.0f,  80.0f);
-               } glEnd();
-               glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-               glBegin(GL_LINE_STRIP); {
-                  glVertex3f( -15.0f,   -5.0f,  80.0f);
-                  glVertex3f( -10.0f,    0.0f,  80.0f);
-                  glVertex3f( -15.0f,    5.0f,  80.0f);
-                  glVertex3f( -25.0f,    0.0f,  80.0f);
-                  glVertex3f( -15.0f,   -5.0f,  80.0f);
-               } glEnd();
-            }
-         }
+         /*> if (x_node->type == '-') {                                               <* 
+          *>    glColor4f (0.4f, 0.4f, 0.4f, 1.0f);                                   <* 
+          *>    glBegin(GL_POLYGON); {                                                <* 
+          *>       glVertex3f( -15.0f,   -5.0f,  80.0f);                              <* 
+          *>       glVertex3f( -10.0f,    0.0f,  80.0f);                              <* 
+          *>       glVertex3f( -15.0f,    5.0f,  80.0f);                              <* 
+          *>       glVertex3f( -25.0f,    0.0f,  80.0f);                              <* 
+          *>    } glEnd();                                                            <* 
+          *>    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                   <* 
+          *>    glBegin(GL_LINE_STRIP); {                                             <* 
+          *>       glVertex3f( -15.0f,   -5.0f,  80.0f);                              <* 
+          *>       glVertex3f( -10.0f,    0.0f,  80.0f);                              <* 
+          *>       glVertex3f( -15.0f,    5.0f,  80.0f);                              <* 
+          *>       glVertex3f( -25.0f,    0.0f,  80.0f);                              <* 
+          *>       glVertex3f( -15.0f,   -5.0f,  80.0f);                              <* 
+          *>    } glEnd();                                                            <* 
+          *> } else {                                                                 <* 
+          *>    if (x_node->nchild > 0) {                                             <* 
+          *>       if      (x_node->nchild > 5) glColor4f (1.0f, 0.2f, 0.2f, 1.0f);   <* 
+          *>       else if (x_node->nchild > 2) glColor4f (1.0f, 1.0f, 0.2f, 1.0f);   <* 
+          *>       else                  glColor4f (0.2f, 1.0f, 0.2f, 1.0f);          <* 
+          *>       glBegin(GL_POLYGON); {                                             <* 
+          *>          glVertex3f( -15.0f,   -5.0f,  80.0f);                           <* 
+          *>          glVertex3f( -10.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f( -15.0f,    5.0f,  80.0f);                           <* 
+          *>          glVertex3f( -25.0f,    0.0f,  80.0f);                           <* 
+          *>       } glEnd();                                                         <* 
+          *>       glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                <* 
+          *>       glBegin(GL_LINE_STRIP); {                                          <* 
+          *>          glVertex3f( -15.0f,   -5.0f,  80.0f);                           <* 
+          *>          glVertex3f( -10.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f( -15.0f,    5.0f,  80.0f);                           <* 
+          *>          glVertex3f( -25.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f( -15.0f,   -5.0f,  80.0f);                           <* 
+          *>       } glEnd();                                                         <* 
+          *>    }                                                                     <* 
+          *> }                                                                        <*/
          /*---(input marker)-------------*/
-         if (curr->ins > 1) {
-            glPushMatrix(); {
-               glTranslatef( -5.0,  0.0,  0.0);
-               if      (curr->ins > 5) glColor4f (1.0f, 0.2f, 0.2f, 1.0f);
-               else if (curr->ins > 2) glColor4f (1.0f, 1.0f, 0.2f, 1.0f);
-               else                    glColor4f (0.2f, 1.0f, 0.2f, 1.0f);
-               glBegin(GL_POLYGON); {
-                  glVertex3f(  -9.0f,    4.0f,  80.0f);
-                  glVertex3f(  -5.0f,    0.0f,  80.0f);
-                  glVertex3f(  -9.0f,   -4.0f,  80.0f);
-                  glVertex3f( -13.0f,    0.0f,  80.0f);
-               } glEnd();
-               glBegin(GL_LINE_STRIP); {
-                  glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-                  glVertex3f(  -9.0f,    4.0f,  80.0f);
-                  glVertex3f(  -5.0f,    0.0f,  80.0f);
-                  glVertex3f(  -9.0f,   -4.0f,  80.0f);
-                  glVertex3f( -13.0f,    0.0f,  80.0f);
-                  glVertex3f(  -9.0f,    4.0f,  80.0f);
-               } glEnd();
-            } glPopMatrix();
-         }
+         /*> if (x_node->ins > 1) {                                                   <* 
+          *>    glPushMatrix(); {                                                     <* 
+          *>       glTranslatef( -5.0,  0.0,  0.0);                                   <* 
+          *>       if      (x_node->ins > 5) glColor4f (1.0f, 0.2f, 0.2f, 1.0f);      <* 
+          *>       else if (x_node->ins > 2) glColor4f (1.0f, 1.0f, 0.2f, 1.0f);      <* 
+          *>       else                    glColor4f (0.2f, 1.0f, 0.2f, 1.0f);        <* 
+          *>       glBegin(GL_POLYGON); {                                             <* 
+          *>          glVertex3f(  -9.0f,    4.0f,  80.0f);                           <* 
+          *>          glVertex3f(  -5.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f(  -9.0f,   -4.0f,  80.0f);                           <* 
+          *>          glVertex3f( -13.0f,    0.0f,  80.0f);                           <* 
+          *>       } glEnd();                                                         <* 
+          *>       glBegin(GL_LINE_STRIP); {                                          <* 
+          *>          glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                             <* 
+          *>          glVertex3f(  -9.0f,    4.0f,  80.0f);                           <* 
+          *>          glVertex3f(  -5.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f(  -9.0f,   -4.0f,  80.0f);                           <* 
+          *>          glVertex3f( -13.0f,    0.0f,  80.0f);                           <* 
+          *>          glVertex3f(  -9.0f,    4.0f,  80.0f);                           <* 
+          *>       } glEnd();                                                         <* 
+          *>    } glPopMatrix();                                                      <* 
+          *> }                                                                        <*/
          /*---(label)--------------------*/
          glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
          if (nnode < 100) {
             /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);
          } else if (nnode < 150) {
             /*> glRotatef(-65    , 0.0f, 0.0f, 1.0f);                                 <*/
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  8, YF_MIDCEN, x_node->hint);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  8, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  8, YF_MIDLEF, x_node->name);
          } else if (nnode < 300) {
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  6, YF_MIDCEN, x_node->hint);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  6, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  6, YF_MIDLEF, x_node->name);
          } else {
             glTranslatef(  2.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  3, YF_MIDCEN, curr->l);
+            yFONT_print(txf_sm,  3, YF_MIDCEN, x_node->hint);
             glTranslatef( 12.0,  0.0,  0.0);
-            yFONT_print(txf_sm,  3, YF_MIDLEF, curr->s);
+            yFONT_print(txf_sm,  3, YF_MIDLEF, x_node->name);
          }
       } glPopMatrix();
-      curr = curr->n;
+      x_node = x_node->next;
    }
    return 0;
 }
@@ -760,8 +785,8 @@ draw_main          (void)
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    DEBUG_G  printf("draw_main()   : draw_back...\n");
    draw_back  ();
-   DEBUG_G  printf("draw_main()   : draw_slices...\n");
-   draw_slices();
+   DEBUG_G  printf("draw_main()   : draw_nodes...\n");
+   draw_nodes ();
    DEBUG_G  printf("draw_main()   : draw_edges...\n");
    draw_edges ();
    DEBUG_G  printf("draw_main()   : unbind framebuffer...\n");
