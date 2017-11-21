@@ -154,8 +154,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5e"
-#define VER_TXT   "updated broke out node and edge drawing to better tune"
+#define VER_NUM   "v0.5f"
+#define VER_TXT   "simplified node and edge drawing with sub-functions"
 
 
 /*===[[ window semi-constants ]]==============================================*/

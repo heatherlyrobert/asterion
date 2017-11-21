@@ -10,7 +10,7 @@ tNODE    *ntail   = NULL;
 
 
 
-char         /*-> assign arc to nodes ----------------[ leaf   [gz.320.101.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> assign arc to nodes ----------------[ leaf   [gz.530.031.10]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_place_default   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -34,7 +34,7 @@ NODE_place_default   (void)
    return 0;
 }
 
-tNODE*       /*-> create a new node ------------------[ leaf   [gp.960.121.20]*/ /*-[11.0000.013.!]-*/ /*-[--.---.---.--]-*/
+tNODE*       /*-> create a new node ------------------[ leaf   [gp.970.121.20]*/ /*-[11.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_create        (char *a_name)
 {
    /*---(locals)-------------------------*/
@@ -109,7 +109,7 @@ NODE_find          (char *a_name)
    return found;
 }
 
-char         /*-> read internal function list --------[ ------ [gc.C71.065.B2]*/ /*-[02.0004.102.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> read internal function list --------[ ------ [ge.FA1.0B7.B3]*/ /*-[02.0001.102.!]-*/ /*-[--.---.---.--]-*/
 NODE_read          (void)
 {
    DEBUG_I  printf("NODE_read     () begin\n");

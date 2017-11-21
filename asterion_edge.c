@@ -73,7 +73,7 @@ EDGE_find          (tNODE *a_source, tNODE *a_end)
    return 0;
 }
 
-char         /*-> establish call list ----------------[ ------ [gc.E91.0A3.G5]*/ /*-[02.0004.102.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> establish call list ----------------[ ------ [ge.IC1.0F2.H5]*/ /*-[02.0001.102.!]-*/ /*-[--.---.---.--]-*/
 EDGE_read          (void)
 {
    DEBUG_I  printf("EDGE_read     () begin\n");

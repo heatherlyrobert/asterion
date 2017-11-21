@@ -22,7 +22,7 @@ PROG_args          (int argc, char *argv[])
    return 0;
 }
 
-char         /*-> drive program startup --------------[ ------ [gz.530.021.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program startup --------------[ ------ [gz.530.011.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_begin         (void)
 {
    /*---(locals)--------------------------------*/
@@ -35,9 +35,9 @@ PROG_begin         (void)
    rc = NODE_read();
    rc = EDGE_read();
    /*---(create texture)------------------------*/
-   draw_init();
-   draw_main();
-   mask_big();
+   draw_init  ();
+   draw_main  ();
+   mask_small ();
    /*---(ready display)-------------------------*/
    draw_resize(win_w, win_h);
    /*---(complete)------------------------------*/
