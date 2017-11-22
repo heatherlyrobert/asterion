@@ -159,12 +159,12 @@ full_refresh       (void)
    yXINIT__gdestroy();
    yXINIT__gsetup();
    font_load();
-   draw_init();
-   draw_main();
+   DRAW_init();
+   DRAW_main();
    if      (mask == 'b') mask_big();
    else if (mask == 's') mask_big();
    else                  mask_tiny();
-   draw_resize(win_w, win_h);
+   DRAW_resize(win_w, win_h);
    return 0;
 }
 
@@ -207,7 +207,7 @@ font_delete(void)
 static void      o___OPENGL__________________o (void) {;}
 
 char         /*-> tbd --------------------------------[ leaf   [gz.970.031.10]*/ /*-[02.0080.102.!]-*/ /*-[--.---.---.--]-*/
-draw_texture (void)
+DRAW_texture (void)
 {
    char  temp[100];
    float w = 0;
@@ -248,7 +248,7 @@ draw_texture (void)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.DC0.071.00]*/ /*-[02.0050.013.!]-*/ /*-[--.---.---.--]-*/
-draw_back          (void)
+DRAW_back          (void)
 {
    /*> printf("drawing\n");                                                           <*/
    float d   = 0.0;
@@ -345,13 +345,13 @@ DRAW_edge_width    (tEDGE *a_edge)
    } else if (a_edge->lvl <= 4) {
       glLineWidth (4.0);
    } else if (a_edge->lvl <= 6) {
-      glLineWidth (2.0);
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(1, 0xAAAA);
+      glLineWidth (4.0);
+      /*> glEnable(GL_LINE_STIPPLE);                                                  <* 
+       *> glLineStipple(1, 0xAAAA);                                                   <*/
    } else {
-      glLineWidth (2.0);
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(1, 0xA0A0);
+      glLineWidth (4.0);
+      /*> glEnable(GL_LINE_STIPPLE);                                                  <* 
+       *> glLineStipple(1, 0xA0A0);                                                   <*/
    }
    return 0;
 }
@@ -420,7 +420,8 @@ DRAW_edge_norm     (tEDGE *a_edge, float a_radius, float a_z)
    x_controls [2][1] =   y;
    x_controls [2][2] = a_z;
    /*---(draw)------------------------*/
-   color_set (a_edge->beg->id % 9, 1.0);
+   yCOLOR_diff_color (a_edge->beg->color, 1.0);
+   /*> color_set (a_edge->beg->id % 9, 1.0);                                          <*/
    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &x_controls [0][0]);
    glEnable(GL_MAP1_VERTEX_3);
    glBegin(GL_LINE_STRIP); {
@@ -479,7 +480,8 @@ DRAW_edge_recurse  (tEDGE *a_edge, float a_radius, float a_z)
    x_controls [2][1] =   y;
    x_controls [2][2] = a_z;
    /*---(draw)------------------------*/
-   color_set (a_edge->beg->id % 9, 1.0);
+   yCOLOR_diff_color (a_edge->beg->color, 1.0);
+   /*> color_set (a_edge->beg->id % 9, 1.0);                                          <*/
    glMap1f  (GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &x_controls [0][0]);
    glEnable (GL_MAP1_VERTEX_3);
    glBegin  (GL_LINE_STRIP); {
@@ -512,24 +514,23 @@ DRAW_edge_number   (tEDGE *a_edge, float a_radius, float a_z)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.850.041.83]*/ /*-[03.0000.013.!]-*/ /*-[--.---.---.--]-*/
-draw_edges         (void)
+DRAW_edges         (void)
 {
    tEDGE      *x_edge      = NULL;
    int         r           = 15 + 90 * 2.5;
-   char        x_begins = 0;
-   char        x_ends   = 0;
+   char        x_begins = 'y';
+   char        x_ends   = 'y';
    x_edge   = ehead;
    while (x_edge != NULL) {
-      if (flen > 0) {
-         x_begins = (strstr(x_edge->beg->name, focus) == NULL) ? 0 : 1;
-         x_ends   = (strstr(x_edge->end->name, focus) == NULL) ? 0 : 1;
-         if        (edges == 's' &&  x_begins != 1) {
-            x_edge = x_edge->next; continue;
-         } else if (edges == 'e' &&  x_ends   != 1) {
-            x_edge = x_edge->next; continue;
-         } else if (edges == 'b' && (x_ends   != 1 && x_begins != 1)) {
-            x_edge = x_edge->next; continue;
-         }
+      x_begins = x_ends = 'y';
+      if (x_edge->beg->show != 'f')  x_begins = '-';
+      if (x_edge->end->show != 'f')  x_ends   = '-';
+      if        (edges == 's' &&  x_begins != 'y') {
+         x_edge = x_edge->next; continue;
+      } else if (edges == 'e' &&  x_ends   != 'y') {
+         x_edge = x_edge->next; continue;
+      } else if (edges == 'b' && (x_ends   != 'y' && x_begins != 'y')) {
+         x_edge = x_edge->next; continue;
       }
       DRAW_edge_width (x_edge);
       if (x_edge->beg != x_edge->end) {
@@ -616,24 +617,21 @@ DRAW_nodes         (void)
    tNODE      *x_node      = NULL;
    int   r = 0;
    float alpha = 0.0f;
-   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   r   = 25 + 2.5 * 90;
+   alpha = 0.8f;
    x_node   = nhead;
    while (x_node != NULL) {
-      /*---(establish color group)-------*/
-      gcolor = x_node->id % 9;
-      if (x_node->next == NULL && gcolor == 1) gcolor = 4;
-      /*---(level based settings)--------*/
-      r   = 25 + 2.5 * 90;
-      alpha = 0.8f;
-      glPushMatrix(); {
-         /*---(file line)----------------*/
-         color_set (x_node->file % 9, 0.3);
-         DRAW_node_wedge (x_node, r + 15);
-         color_set (x_node->id   % 9, 0.8);
-         DRAW_node_wedge (x_node, r);
-         glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-         DRAW_node_label (x_node, r + 5);
-      } glPopMatrix();
+      if (x_node->show != '-') {
+         glPushMatrix(); {
+            /*---(file line)----------------*/
+            color_set (x_node->file % 9, 0.5);
+            DRAW_node_wedge (x_node, r + 15);
+            yCOLOR_diff_color (x_node->color, 0.8);
+            DRAW_node_wedge (x_node, r);
+            glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+            DRAW_node_label (x_node, r + 5);
+         } glPopMatrix();
+      }
       x_node = x_node->next;
    }
    return 0;
@@ -683,7 +681,7 @@ texture_free       (void)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.B63.021.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
-draw_main          (void)
+DRAW_main          (void)
 {
    /*---(begin)--------------------------*/
    DEBUG_G  printf("draw_main()   : begin...\n");
@@ -711,11 +709,11 @@ draw_main          (void)
    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);       /* nice medium grey            */
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    DEBUG_G  printf("draw_main()   : draw_back...\n");
-   draw_back  ();
+   DRAW_back  ();
    DEBUG_G  printf("draw_main()   : DRAW_nodes...\n");
    DRAW_nodes ();
    DEBUG_G  printf("draw_main()   : draw_edges...\n");
-   draw_edges ();
+   DRAW_edges ();
    DEBUG_G  printf("draw_main()   : unbind framebuffer...\n");
    glBindFramebufferEXT         (GL_FRAMEBUFFER_EXT, 0);
    DEBUG_G  printf("draw_main()   : done drawing...\n");
@@ -736,27 +734,41 @@ draw_main          (void)
 }
 
 char         /*-> tbd --------------------------------[ shoot  [gz.440.001.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
-draw_init(void)
+DRAW_init            (void)
 {
-   glShadeModel (GL_SMOOTH);
-   glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+   /*---(header)-------------------------*/
+   yLOG_senter  (__FUNCTION__);
+   /*---(color)--------------------------*/
+   yLOG_snote   ("color");
+   yCOLOR_diff_back  ();
    glClearDepth (1.0f);
+   /*---(textures)-----------------------*/
+   yLOG_snote   ("texture");
+   glShadeModel (GL_SMOOTH);
    glEnable     (GL_TEXTURE_2D);    /* NEW */
+   /*---(blending)-----------------------*/
+   yLOG_snote   ("blending");
    glEnable     (GL_DEPTH_TEST);
    glEnable     (GL_ALPHA_TEST);
    glEnable     (GL_BLEND);
    glAlphaFunc  (GL_GEQUAL, 0.0125);
    glBlendFunc  (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   /*---(anti-aliasing)------------------*/
+   yLOG_snote   ("antialias" );
    glHint       (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-   /*> glEnable     (GL_POLYGON_SMOOTH);                                              <*/
    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+   glEnable     (GL_POLYGON_SMOOTH);
    glHint       (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+   /*---(flush)--------------------------*/
+   yLOG_snote   ("flush" );
    glFlush      ();
+   /*---(complete)-----------------------*/
+   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.430.221.10]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
-draw_resize(uint a_w, uint a_h)
+DRAW_resize          (uint a_w, uint a_h)
 {
    if (a_h == 0) a_h = 1;
    float   xwidth  = win_w  / 2.0;

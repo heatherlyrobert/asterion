@@ -135,7 +135,9 @@
 /*---(heatherly libraries)-------------------------*/
 #include   <yX11.h>                    /* heatherly xlib/glx setup            */
 #include   <yFONT.h>                   /* opengl texture-mapped fonts         */
-#include   <ySTR.h>                    /* opengl texture-mapped fonts         */
+#include   <ySTR.h>                    /* heatherly string handling           */
+#include   <yCOLOR.h>                  /* heatherly color library             */
+#include   <yURG.h>                    /* heatherly urgent handling           */
 
 /*---(X11/opengl libraries)------------------------*/
 #include   <GL/gl.h>                   /* main header for opengl              */
@@ -154,8 +156,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5f"
-#define VER_TXT   "simplified node and edge drawing with sub-functions"
+#define VER_NUM   "v0.5h"
+#define VER_TXT   "built file filtering, very nice"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -174,9 +176,10 @@ struct cNODE {
    int       ins;                 /* count of places that call this function  */
    int       nchild;              /* count of direct children                 */
    int       nheir;               /* count of total decendents                */
+   int       color;               /* yCOLOR color identifier                  */
    char      cli;                 /* sends text to stdout                     */
    char      glx;                 /* uses open gl                             */
-   char      f;                   /* focus flag     -- 0=hide, 1=show         */
+   char      show;                /* focus flag     -- 0=hide, 1=show         */
    char      r;                   /* recursive flag -- 0=no  , 1=yes          */
    float     lead;                /* position of lead side                    */
    float     tail;                /* position of tail side                    */
@@ -205,8 +208,6 @@ extern tEDGE   *etail;
 
 
 
-float  ctrl [3][3];
-float  ctrlr[4][3];
 
 #define  DEG2RAD  (3.1415927 / 180.0)
 #define  RAD2DEG  (180.0 / 3.1415927)
@@ -261,21 +262,23 @@ extern char      mask;
 /*> extern   XFontStruct *xfont;                                                      <*/
 
 int        main              (int argc, char *argv[]);
+char       PROG_init         (void);
 char       PROG_args         (int argc, char *argv[]);
 char       PROG_begin        (void);
+char       PROG_final        (void);
 char       PROG_event        (void);
 char       PROG_end          (void);
 
-char       draw_init         (void);
-char       draw_main         (void);
-char       draw_back         (void);
+char       DRAW_init         (void);
+char       DRAW_main         (void);
+char       DRAW_back         (void);
 char       DRAW_nodes        (void);
-char       draw_edges        (void);
-char       draw_texture      (void);
+char       DRAW_edges        (void);
+char       DRAW_texture      (void);
 char       texture_create    (void);
 char       texture_free      (void);
 
-char       draw_resize       (uint, uint);
+char       DRAW_resize       (uint, uint);
 long       time_stamp        (void);
 
 char       font_load         (void);
@@ -283,5 +286,9 @@ char       font_delete       (void);
 
 void       str_trim          (char *a_cstring);
 char       NODE_read         (void);
+
+char       FIND_filemode        (char a_major, char a_minor);
+char       FIND_hintmode        (char a_major, char a_minor);
+char       FIND_searchmode      (char a_major, char a_minor);
 
 #endif

@@ -9,7 +9,7 @@ NAME_BASE  = asterion
 # additional standard and outside libraries
 LIB_STD    = -lX11 -lGL -lGLU -lm -lXext
 # all heatherly libraries used, debug versions whenever available
-LIB_MINE   = -lyX11_debug -lyFONT_debug -lySTR_debug
+LIB_MINE   = -lyX11_debug -lyFONT_debug -lySTR_debug -lyCOLOR_debug
 # directory for production code, no trailing slash
 INST_DIR   = /usr/local/bin
 

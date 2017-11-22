@@ -52,9 +52,10 @@ NODE_create        (char *a_name)
    temp->ins    = 0;
    temp->nchild = 0;
    temp->nheir  = 0;
+   temp->color  = yCOLOR_diff_next ();
    temp->cli    = 0;
    temp->glx    = 0;
-   temp->f      = 1;
+   temp->show   = 'f';
    temp->prev   = NULL;
    temp->next   = NULL;
    temp->r      = 0;
