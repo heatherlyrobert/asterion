@@ -382,6 +382,50 @@ DRAW_edge_end      (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
+char         /*-> tbd --------------------------------[ ------ [gz.430.321.01]*/ /*-[01.0010.014.!]-*/ /*-[--.---.---.--]-*/
+DRAW_edge_start    (tEDGE *a_edge, float a_radius, float a_z)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_degrees   = 0.0;
+   char        t           [200]  = "";
+   /*---(edge number)-----------------*/
+   x_degrees   = a_edge->beg->lead + ((a_edge->beg->arc / 3.0) * 2.0);
+   glPushMatrix(); {
+      glColor4f    (0.0f, 0.0f, 0.0f, 1.0f);
+      glRotatef    ( 90 - x_degrees, 0.0f, 0.0f, 1.0f);
+      glBegin(GL_POLYGON); {
+         glVertex3f   (a_radius     ,    5,  a_z);
+         glVertex3f   (a_radius     ,   -5,  a_z);
+         glVertex3f   (a_radius - 10,    0,  a_z);
+         glVertex3f   (a_radius     ,    5,  a_z);
+      } glEnd();
+   } glPopMatrix();
+   /*---(complete)--------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [gz.430.321.01]*/ /*-[01.0010.014.!]-*/ /*-[--.---.---.--]-*/
+DRAW_edge_finish   (tEDGE *a_edge, float a_radius, float a_z)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_degrees   = 0.0;
+   char        t           [200]  = "";
+   /*---(edge number)-----------------*/
+   x_degrees   = a_edge->end->lead + ((a_edge->end->arc / 3.0) * 1.0);
+   glPushMatrix(); {
+      yCOLOR_diff_color (a_edge->beg->color, 1.0);
+      glRotatef    ( 90 - x_degrees, 0.0f, 0.0f, 1.0f);
+      glBegin(GL_POLYGON); {
+         glVertex3f   (a_radius - 10,    5,  a_z);
+         glVertex3f   (a_radius - 10,   -5,  a_z);
+         glVertex3f   (a_radius     ,    0,  a_z);
+         glVertex3f   (a_radius - 10,    5,  a_z);
+      } glEnd();
+   } glPopMatrix();
+   /*---(complete)--------------------*/
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ leaf   [gz.B80.391.00]*/ /*-[02.0000.014.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edge_norm     (tEDGE *a_edge, float a_radius, float a_z)
 {
@@ -535,12 +579,14 @@ DRAW_edges         (void)
       DRAW_edge_width (x_edge);
       if (x_edge->beg != x_edge->end) {
          DRAW_edge_norm    (x_edge, r - 10, 40.0);
+         DRAW_edge_start   (x_edge, r -  5, 45.0);
+         DRAW_edge_finish  (x_edge, r -  5, 60.0);
       } else {
          DRAW_edge_recurse (x_edge, r - 10, 40.0);
       }
       glDisable(GL_LINE_STIPPLE);
       /*---(dot)-------------------------*/
-      /*> DRAW_edge_end  (x_edge, r - 10, 45.0);                                      <*/
+      /*> DRAW_edge_end    (x_edge, r - 10, 45.0);                                    <*/
       /*---(edge number)-----------------*/
       if (edges == 's') {
          DRAW_edge_number (x_edge, r, 40.0);

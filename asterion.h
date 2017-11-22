@@ -156,8 +156,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5h"
-#define VER_TXT   "built file filtering, very nice"
+#define VER_NUM   "v0.5i"
+#define VER_TXT   "added edge beginning and ending arrows, sweet"
 
 
 /*===[[ window semi-constants ]]==============================================*/
