@@ -156,8 +156,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5i"
-#define VER_TXT   "added edge beginning and ending arrows, sweet"
+#define VER_NUM   "v0.5j"
+#define VER_TXT   "hint relative movements ;[ ;< ;> ;] now working"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -206,6 +206,8 @@ extern int      nedge;
 extern tEDGE   *ehead;
 extern tEDGE   *etail;
 
+extern char    s_file    [  5];
+extern char    s_hint    [  5];
 
 
 

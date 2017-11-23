@@ -4,13 +4,13 @@
 
 
 
-char         /*-> drive program startup --------------[ ------ [gz.530.011.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program startup --------------[ shoot  [gz.210.001.00]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_init          (void)
 {
    return 0;
 }
 
-char         /*-> process the command line -----------[ leaf   [gz.430.221.50]*/ /*-[01.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> process the command line -----------[ ------ [gz.530.221.83]*/ /*-[02.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_args          (int argc, char *argv[])
 {
    char *a = NULL;
@@ -33,7 +33,7 @@ PROG_args          (int argc, char *argv[])
    return 0;
 }
 
-char         /*-> drive program startup --------------[ ------ [gz.530.011.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program startup --------------[ ------ [gz.530.011.07]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_begin         (void)
 {
    /*---(locals)--------------------------------*/
@@ -56,13 +56,13 @@ PROG_begin         (void)
    return 0;
 }
 
-char         /*-> drive program startup --------------[ ------ [gz.530.011.03]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> drive program startup --------------[ leaf   [gz.210.001.00]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_final         (void)
 {
    return 0;
 }
 
-char         /*-> process xwindows events ------------[ ------ [gz.RV0.0E1.Q3]*/ /*-[05.0000.101.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> process xwindows events ------------[ ------ [gz.UX0.0E1.R6]*/ /*-[04.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_event         ()
 {
    int   frames = 0;

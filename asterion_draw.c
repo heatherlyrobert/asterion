@@ -151,7 +151,7 @@ time_stamp()                      /* PURPOSE : timestamp in microseconds      */
 
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.001.31]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.430.001.34]*/ /*-[00.0000.302.!]-*/ /*-[--.---.---.--]-*/
 full_refresh       (void)
 {
    texture_free();
@@ -161,9 +161,9 @@ full_refresh       (void)
    font_load();
    DRAW_init();
    DRAW_main();
-   if      (mask == 'b') mask_big();
-   else if (mask == 's') mask_big();
-   else                  mask_tiny();
+   if      (mask == 'b') mask_big   ();
+   else if (mask == 's') mask_small ();
+   else                  mask_tiny  ();
    DRAW_resize(win_w, win_h);
    return 0;
 }
@@ -212,35 +212,37 @@ DRAW_texture (void)
    char  temp[100];
    float w = 0;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glLoadIdentity();
-   glTranslatef( xdist,  ydist,   0.0);
    glPushMatrix(); {
-      glTranslatef(   0.0,    0.0, -zdist);
-      glRotatef(angle, 0.0, 0.0, 1.0);
-      glBindTexture   (GL_TEXTURE_2D, tex);
-      glBegin(GL_POLYGON);
-      glTexCoord2f( 0.00, 1.00);
-      glVertex3f( -400,  400, 0.0);
-      glTexCoord2f( 1.00, 1.00);
-      glVertex3f(  400,  400, 0.0);
-      glTexCoord2f( 1.00, 0.00);
-      glVertex3f(  400, -400, 0.0);
-      glTexCoord2f( 0.00, 0.00);
-      glVertex3f( -400, -400, 0.0);
-      glEnd();
-      glBindTexture   (GL_TEXTURE_2D, 0);
+      glLoadIdentity();
+      glTranslatef( xdist,  ydist,   0.0);
+      glPushMatrix(); {
+         glTranslatef(   0.0,    0.0, -zdist);
+         glRotatef(angle, 0.0, 0.0, 1.0);
+         glBindTexture   (GL_TEXTURE_2D, tex);
+         glBegin(GL_POLYGON);
+         glTexCoord2f( 0.00, 1.00);
+         glVertex3f( -400,  400, 0.0);
+         glTexCoord2f( 1.00, 1.00);
+         glVertex3f(  400,  400, 0.0);
+         glTexCoord2f( 1.00, 0.00);
+         glVertex3f(  400, -400, 0.0);
+         glTexCoord2f( 0.00, 0.00);
+         glVertex3f( -400, -400, 0.0);
+         glEnd();
+         glBindTexture   (GL_TEXTURE_2D, 0);
+      } glPopMatrix();
+      /*---(shade if not-focused)-----------*/
+      float    z = -5.0;
+      if (alpha != 0.0) {
+         glColor4f (0.0f, 0.0f, 0.0f, alpha);
+         glBegin(GL_POLYGON); {
+            glVertex3f   ( -400,   400,    z);
+            glVertex3f   (  400,   400,    z);
+            glVertex3f   (  400,  -400,    z);
+            glVertex3f   ( -400,  -400,    z);
+         } glEnd();
+      }
    } glPopMatrix();
-   /*---(shade if not-focused)-----------*/
-   float    z = -5.0;
-   if (alpha != 0.0) {
-      glColor4f (0.0f, 0.0f, 0.0f, alpha);
-      glBegin(GL_POLYGON); {
-         glVertex3f   ( -400,   400,    z);
-         glVertex3f   (  400,   400,    z);
-         glVertex3f   (  400,  -400,    z);
-         glVertex3f   ( -400,  -400,    z);
-      } glEnd();
-   }
    /*---(force the redraw)-----------------*/
    glXSwapBuffers(DISP, BASE);
    glFlush();
@@ -256,7 +258,8 @@ DRAW_back          (void)
    float rad;
    float x, y;
    int   rc = 0;
-   char    temp[100];
+   char    t [100];
+   int   x_count = 0;
    /*---(center)---------------------------*/
    r = 225;
    glBindTexture(GL_TEXTURE_2D, 0);
@@ -266,7 +269,7 @@ DRAW_back          (void)
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x = (r * sin(rad));
          y = (r * cos(rad));
-         glVertex3f(x, y,  20.0);
+         glVertex3f(x, y,   0.0);
       }
    } glEnd();
    glBegin(GL_LINE_STRIP); {
@@ -274,27 +277,10 @@ DRAW_back          (void)
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x = (r * sin(rad));
          y = (r * cos(rad));
-         glVertex3f(x, y,  22.0);
+         glVertex3f(x, y,   2.0);
       }
    } glEnd();
-   /*> r = 245;                                                                       <* 
-    *> glBegin(GL_POLYGON); {                                                         <* 
-    *>    for (d = 0; d <= 365; d += 1) {                                             <* 
-    *>       rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
-    *>       x = (r * sin(rad));                                                      <* 
-    *>       y = (r * cos(rad));                                                      <* 
-    *>       glVertex3f(x, y,  -5.0);                                                 <* 
-    *>    }                                                                           <* 
-    *> } glEnd();                                                                     <* 
-    *> glBegin(GL_LINE_STRIP); {                                                      <* 
-    *>    for (d = 0; d <= 365; d += 1) {                                             <* 
-    *>       rad = ((float) (d) / 360.0) * (2 * 3.1415927);                           <* 
-    *>       x = (r * sin(rad));                                                      <* 
-    *>       y = (r * cos(rad));                                                      <* 
-    *>       glVertex3f(x, y,  -5.0);                                                 <* 
-    *>    }                                                                           <* 
-    *> }glEnd();                                                                      <*/
-   /*---(external)-------------------------*/
+   /*---(center dot)-----------------------*/
    r =  10;
    glColor4f (0.0f, 0.0f, 0.0f, 0.3f);
    glBegin(GL_POLYGON); {
@@ -302,19 +288,36 @@ DRAW_back          (void)
          rad = ((float) (d) / 360.0) * (2 * 3.1415927);
          x = (r * sin(rad));
          y = (r * cos(rad));
-         glVertex3f(x, y,  40.0);
+         glVertex3f(x, y,  10.0);
       }
    } glEnd();
-   /*---(show radial)----------------------*/
+   /*---(stats)----------------------------*/
    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   for (d = 0; d < 360; d += 60) {
+      glPushMatrix(); {
+         glRotatef    (d, 0.0f, 0.0f, 1.0f);
+         glTranslatef (30, 0.0,  15.0);
+         switch (x_count) {
+         case  0 :  snprintf (t, 200, "nodes  %d", nnode);    break;
+         case  1 :  snprintf (t, 200, "edges  %d", nedge);    break;
+         case  2 :  snprintf (t, 200, "files  %d", nfile);    break;
+         case  3 :  snprintf (t, 200, "colors %d", yCOLOR_diff_count()); break;
+         case  4 :  snprintf (t, 200, "hint   %s", s_hint);   break;
+         case  5 :  snprintf (t, 200, "file   %s", s_file);   break;
+         default :  snprintf (t, 200, "tbd");                 break;
+         }
+         printf ("%s\n", t);
+         yFONT_print  (txf_sm,  8, YF_MIDLEF, t);
+         ++x_count;
+      } glPopMatrix();
+   }
    /*---(complete)-------------------------*/
    return 0;
 }
 
 char  gcolor = 0;
 
-char         /*-> tbd --------------------------------[ leaf   [gz.450.201.10]*/ /*-[00.0000.034.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.450.201.10]*/ /*-[00.0000.014.!]-*/ /*-[--.---.---.--]-*/
 color_set          (char a_base, float a_alpha)
 {
    switch (a_base) {
@@ -382,7 +385,7 @@ DRAW_edge_end      (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.321.01]*/ /*-[01.0010.014.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ leaf   [gz.530.321.00]*/ /*-[02.0040.014.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edge_start    (tEDGE *a_edge, float a_radius, float a_z)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -404,7 +407,7 @@ DRAW_edge_start    (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.430.321.01]*/ /*-[01.0010.014.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.530.321.01]*/ /*-[02.0040.014.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edge_finish   (tEDGE *a_edge, float a_radius, float a_z)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -426,7 +429,7 @@ DRAW_edge_finish   (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.B80.391.00]*/ /*-[02.0000.014.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.B90.391.01]*/ /*-[02.0000.014.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edge_norm     (tEDGE *a_edge, float a_radius, float a_z)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -478,7 +481,7 @@ DRAW_edge_norm     (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.CA0.391.00]*/ /*-[02.0000.014.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.CA0.391.01]*/ /*-[02.0000.014.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edge_recurse  (tEDGE *a_edge, float a_radius, float a_z)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -557,7 +560,7 @@ DRAW_edge_number   (tEDGE *a_edge, float a_radius, float a_z)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.850.041.83]*/ /*-[03.0000.013.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.850.041.96]*/ /*-[02.0000.013.!]-*/ /*-[--.---.---.--]-*/
 DRAW_edges         (void)
 {
    tEDGE      *x_edge      = NULL;
@@ -648,7 +651,7 @@ DRAW_node_label    (tNODE *a_node, float a_radius)
       glRotatef    (90.0 - x_degrees, 0.0f, 0.0f, 1.0f);
       glTranslatef (a_radius,  0.0, 20.0);
       glTranslatef (  2.0,  0.0,  0.0);
-      yFONT_print  (txf_sm,  6, YF_MIDCEN, a_node->hint);
+      yFONT_print  (txf_sm,  8, YF_MIDCEN, a_node->hint);
       glTranslatef ( 12.0,  0.0,  0.0);
       yFONT_print  (txf_sm,  6, YF_MIDLEF, a_node->name);
    } glPopMatrix ();
@@ -656,7 +659,7 @@ DRAW_node_label    (tNODE *a_node, float a_radius)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gz.##0.0H1.K2]*/ /*-[02.00#0.013.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.640.031.23]*/ /*-[03.0000.013.!]-*/ /*-[--.---.---.--]-*/
 DRAW_nodes         (void)
 {
    /*---(locals)---------------------------*/
@@ -726,7 +729,7 @@ texture_free       (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ leaf   [gz.B63.021.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ ------ [gz.B63.021.03]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 DRAW_main          (void)
 {
    /*---(begin)--------------------------*/
@@ -779,7 +782,7 @@ DRAW_main          (void)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ shoot  [gz.440.001.00]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> tbd --------------------------------[ shoot  [gz.742.001.01]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 DRAW_init            (void)
 {
    /*---(header)-------------------------*/

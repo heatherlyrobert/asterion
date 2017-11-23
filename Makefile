@@ -39,7 +39,9 @@ include /usr/local/sbin/make_program
 
 #===(post-processing)======================================#
 # create a rule for...
-#install_post       :
+install_post       :
+	_inst --bin labyrinth
+
 #remove_post        :
 
 

@@ -2,13 +2,14 @@
 #include   "asterion.h"
 
 static     char    s_type    = '-';
-static     char    s_file    [  5]  = "";
-static     char    s_hint    [  5]  = "";
+char               s_file    [  5]  = "";
+char               s_hint    [  5]  = "";
+char               s_hintold [  5]  = "";
 static     char    s_search  [100]  = "";
 static     char    s_fileid  = -1;
 
 
-char
+char         /*-> tbd --------------------------------[ leaf   [fz.630.031.70]*/ /*-[03.0000.023.!]-*/ /*-[--.---.---.--]-*/
 FIND__filter         (void)
 {
    int         i           = 0;
@@ -38,7 +39,7 @@ FIND__filter         (void)
    return 0;
 }
 
-char
+char         /*-> tbd --------------------------------[ leaf   [fz.A61.051.20]*/ /*-[02.0000.013.!]-*/ /*-[--.---.---.--]-*/
 FIND__partition      (void)
 {
    tNODE      *x_node      = NULL;
@@ -88,7 +89,7 @@ FIND__partition      (void)
    return 0;
 }
 
-char
+char         /*-> tbd --------------------------------[ ------ [ge.KA6.247.C2]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
 FIND_filemode        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -173,7 +174,7 @@ FIND_filemode        (char a_major, char a_minor)
       else if (a_minor == ',')    x_fileid = -1;
       else if (a_minor < '9')     x_fileid = a_minor - '0';
       else                        x_fileid = a_minor - 'A' + 10;
-      if (x_fileid < nfile)  s_fileid = x_fileid;
+      if (x_fileid <= nfile)  s_fileid = x_fileid;
       DEBUG_USER   yLOG_info    ("s_file"    , s_file);
       DEBUG_USER   yLOG_value   ("s_fileid"  , s_fileid);
    }
@@ -187,11 +188,90 @@ FIND_filemode        (char a_major, char a_minor)
    return 1;
 }
 
-char
+char         /*-> tbd --------------------------------[ leaf   [fz.630.031.70]*/ /*-[03.0000.023.!]-*/ /*-[--.---.---.--]-*/
+FIND__hintrelative   (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         rce         =  -10;
+   int         i           = 0;
+   tNODE      *x_node      = NULL;
+   char        x_found     = '-';
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+   DEBUG_USER   yLOG_char    ("s_hint[1]" , s_hint [1]);
+   if (s_hint [1] == '[') {
+      DEBUG_USER   yLOG_note    ("find first hint");
+      sprintf (s_hint, ";;%s", nhead->hint);
+      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (s_hint [1] == ']') {
+      DEBUG_USER   yLOG_note    ("find last hint");
+      sprintf (s_hint, ";;%s", ntail->hint);
+      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   --rce;  if (s_hint [1] == '<' || s_hint [1] == '>') {
+      DEBUG_USER   yLOG_note    ("<> hint, start search");
+      if (strcmp (s_hintold, "") == 0) {
+         sprintf (s_hintold, ";;%s", nhead->hint);
+      }
+      x_node  = nhead;
+      /*---(search)----------------------*/
+      for (i = 0; i < nnode; ++i) {
+         /*---(filter)-------------------*/
+         if (s_hintold [2] != x_node->hint [0] || s_hintold [3] != x_node->hint [1]) {
+            x_node = x_node->next;
+            continue;
+         }
+         /*---(found)--------------------*/
+         DEBUG_USER   yLOG_info    ("found"     , x_node->hint);
+         x_found = 'y';
+         break;
+      }
+      if (x_found == '-') {
+         DEBUG_USER   yLOG_note    ("current not found");
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      if (s_hint [1] == '<') {
+         DEBUG_USER   yLOG_note    ("look for previous");
+         if (x_node->prev == NULL) {
+            DEBUG_USER   yLOG_note    ("previous is null");
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce -1);
+            return rce - 1;
+         }
+         sprintf (s_hint, ";;%s", x_node->prev->hint);
+         DEBUG_USER   yLOG_note    ("s_hint"    , s_hint);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      if (s_hint [1] == '>') {
+         DEBUG_USER   yLOG_note    ("look for next");
+         if (x_node->next == NULL) {
+            DEBUG_USER   yLOG_note    ("next is null");
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce -2);
+            return rce - 2;
+         }
+         sprintf (s_hint, ";;%s", x_node->next->hint);
+         DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+   }
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.MA8.23#.A1]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
 FIND_hintmode        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    char        x_len       =    0;
    char        t           [5]   = "";
    /*---(header)-------------------------*/
@@ -221,8 +301,8 @@ FIND_hintmode        (char a_major, char a_minor)
       return rce;
    }
    /*---(escaping out)-------------------*/
-   if (a_minor == 10 || a_minor == 27) {
-      DEBUG_USER   yLOG_note    ("return/escape, quit");
+   if (a_minor == 13 || a_minor == 27) {
+      DEBUG_USER   yLOG_note    ("clear hint focus");
       strcpy (s_hint, "");
       FIND__filter ();
       alpha = 0.0;
@@ -237,6 +317,25 @@ FIND_hintmode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
+   }
+   /*---(relative moves)-----------------*/
+   if (strchr ("[<>]", a_minor) != NULL) {
+      DEBUG_USER   yLOG_note    ("relative hint");
+      sprintf (t, "%c", a_minor);
+      strcat  (s_hint, t);
+      rc = FIND__hintrelative ();
+      if (rc < 0) {
+         strcpy (s_hint, "");
+         alpha = 0.0;
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
+         return rc;
+      }
+      strcpy  (s_hintold, s_hint);
+      FIND__filter ();
+      alpha = 0.0;
+      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 1;
    }
    /*---(too small)----------------------*/
    --rce;  if (x_len <  2) {
@@ -286,6 +385,7 @@ FIND_hintmode        (char a_major, char a_minor)
       }
       sprintf (t, "%c", a_minor);
       strcat  (s_hint, t);
+      strcpy  (s_hintold, s_hint);
       DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
    }
    /*---(enact)--------------------------*/
@@ -297,7 +397,7 @@ FIND_hintmode        (char a_major, char a_minor)
    return 1;
 }
 
-char
+char         /*-> tbd --------------------------------[ leaf   [gz.210.201.00]*/ /*-[00.0000.00#.!]-*/ /*-[--.---.---.--]-*/
 FIND_searchmode      (char a_major, char a_minor)
 {
    return 0;
