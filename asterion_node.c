@@ -66,6 +66,20 @@ NODE_close         (void)
    return 0;
 }
 
+char         /*-> set colors -------------------------[ leaf   [ge.411.011.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+NODE_color         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   tNODE      *x_node      = nhead;
+   /*---(walk nodes)---------------------*/
+   /*> yCOLOR_diff_first ();                                                          <*/
+   while (x_node != NULL) {
+      x_node->color = yCOLOR_diff_next ();
+      x_node        = x_node->next;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
 
 char         /*-> assign arc to nodes ----------------[ leaf   [gz.530.031.10]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 NODE_place_default   (void)

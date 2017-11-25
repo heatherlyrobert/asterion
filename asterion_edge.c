@@ -4,6 +4,7 @@
 
 
 int      nedge  = 0;
+int      aedge  = 0;
 tEDGE   *ehead  = NULL;
 tEDGE   *etail  = NULL;
 
@@ -146,7 +147,6 @@ EDGE_read          (void)
    int         x_level     = 1;
    char        x_exists    = 0;
    int         x_len       = 0;
-   int         x_total     = 0;
    int         x_dups      = 0;
    int         x_bado      = 0;
    int         x_badd      = 0;
@@ -164,7 +164,7 @@ EDGE_read          (void)
       /*---(read line)-------------------*/
       fgets (s_recd, MAXLINE, s_file);
       if (feof (s_file))                     break;
-      ++x_total;
+      ++aedge;
       /*---(name and level)--------------*/
       p         = strtok (s_recd, q);
       x_len     = strlen (p);
@@ -215,7 +215,7 @@ EDGE_read          (void)
    /*---(test for trouble)---------------*/
    --rce;  if (nedge <= 0)        return rce;
    /*---(summary)------------------------*/
-   printf ("total = %d\n", x_total);
+   printf ("total = %d\n", aedge);
    printf ("dups  = %d\n", x_dups );
    printf ("bado  = %d\n", x_bado );
    printf ("badd  = %d\n", x_badd );

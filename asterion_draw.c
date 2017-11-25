@@ -292,25 +292,27 @@ DRAW_back          (void)
       }
    } glEnd();
    /*---(stats)----------------------------*/
-   /*> glColor4f (0.0f, 0.0f, 0.0f, 1.0f);                                            <* 
-    *> for (d = 0; d < 360; d += 60) {                                                <* 
-    *>    glPushMatrix(); {                                                           <* 
-    *>       glRotatef    (d, 0.0f, 0.0f, 1.0f);                                      <* 
-    *>       glTranslatef (30, 0.0,  15.0);                                           <* 
-    *>       switch (x_count) {                                                       <* 
-    *>       case  0 :  snprintf (t, 200, "nodes  %d", nnode);    break;              <* 
-    *>       case  1 :  snprintf (t, 200, "edges  %d", nedge);    break;              <* 
-    *>       case  2 :  snprintf (t, 200, "files  %d", nfile);    break;              <* 
-    *>       case  3 :  snprintf (t, 200, "colors %d", yCOLOR_diff_count()); break;   <* 
-    *>       case  4 :  snprintf (t, 200, "hint   %s", my.s_hint);   break;           <* 
-    *>       case  5 :  snprintf (t, 200, "file   %s", my.s_file);   break;           <* 
-    *>       default :  snprintf (t, 200, "tbd");                 break;              <* 
-    *>       }                                                                        <* 
-    *>       printf ("%s\n", t);                                                      <* 
-    *>       yFONT_print  (txf_sm,  8, YF_MIDLEF, t);                                 <* 
-    *>       ++x_count;                                                               <* 
-    *>    } glPopMatrix();                                                            <* 
-    *> }                                                                              <*/
+   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   for (d = 0; d < 360; d += 60) {
+      glPushMatrix(); {
+         glRotatef    (d, 0.0f, 0.0f, 1.0f);
+         glTranslatef (30, 0.0,  15.0);
+         switch (x_count) {
+         case  0 :  snprintf (t, 200, "nodes  %d", nnode);    break;
+         case  1 :  snprintf (t, 200, "edges  %d", nedge);    break;
+         case  2 :  snprintf (t, 200, "files  %d", nfile);    break;
+         case  3 :  snprintf (t, 200, "colors %d", yCOLOR_diff_count()); break;
+         /*> case  4 :  snprintf (t, 200, "hint   %s", my.s_hint);   break;           <*/
+         case  4 :  snprintf (t, 200, "start  %d", my.c_start);  break;
+         /*> case  5 :  snprintf (t, 200, "file   %s", my.s_file);   break;           <*/
+         case  5 :  snprintf (t, 200, "seed   %d", my.c_seed);   break;
+         default :  snprintf (t, 200, "tbd");                 break;
+         }
+         printf ("%s\n", t);
+         yFONT_print  (txf_sm,  8, YF_MIDLEF, t);
+         ++x_count;
+      } glPopMatrix();
+   }
    /*---(complete)-------------------------*/
    return 0;
 }
@@ -737,6 +739,11 @@ DRAW_main          (void)
    /*---(locals)-------------------------*/
    float     xwidth  = tex_w  / 4.0;
    float     xheight = tex_h  / 4.0;
+   /*---(colors)-------------------------*/
+   yCOLOR_diff_scheme (my.c_scheme);
+   if (my.c_seed  != 0)  yCOLOR_diff_chaos  (my.c_seed  );
+   if (my.c_start != 0)  yCOLOR_diff_start  (my.c_start );
+   NODE_color ();
    /*---(create objects)-----------------*/
    DEBUG_G  printf("draw_main()   : to enter texture create...\n");
    texture_create();

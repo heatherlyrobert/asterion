@@ -7,7 +7,9 @@
 char         /*-> drive program startup --------------[ shoot  [gz.210.001.00]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_init          (void)
 {
-   yCOLOR_diff_scheme (YCOLOR_WHITE);
+   my.c_scheme  = YCOLOR_WHITE;
+   my.c_start   = 0;
+   my.c_seed    = 0;
    return 0;
 }
 
@@ -20,15 +22,15 @@ PROG_args          (int argc, char *argv[])
    for (i = 1; i < argc; ++i) {
       a = argv[i];
       /*---(color options)---------------*/
-      if      (strcmp (a, "--color-white"       ) == 0)  yCOLOR_diff_scheme (YCOLOR_WHITE);
-      else if (strcmp (a, "--color-light"       ) == 0)  yCOLOR_diff_scheme (YCOLOR_LIGHT);
-      else if (strcmp (a, "--color-dark"        ) == 0)  yCOLOR_diff_scheme (YCOLOR_DARK );
-      else if (strcmp (a, "--color-black"       ) == 0)  yCOLOR_diff_scheme (YCOLOR_BLACK);
+      if      (strcmp (a, "--color-white"       ) == 0)  my.c_scheme = YCOLOR_WHITE;
+      else if (strcmp (a, "--color-light"       ) == 0)  my.c_scheme = YCOLOR_LIGHT;
+      else if (strcmp (a, "--color-dark"        ) == 0)  my.c_scheme = YCOLOR_DARK ;
+      else if (strcmp (a, "--color-black"       ) == 0)  my.c_scheme = YCOLOR_BLACK;
       else if (strcmp (a, "--color-start"       ) == 0) {
-         if (i + 1 < argc) if (atoi (argv [i + 1]) > 0 ) yCOLOR_diff_start (atoi (argv[++i]));
+         if (i + 1 < argc) if (atoi (argv [i + 1]) > 0 )  my.c_start = atoi (argv[++i]);
       }
       else if (strcmp (a, "--color-chaos"       ) == 0) {
-         if (i + 1 < argc) if (atoi (argv [i + 1]) > 0 ) yCOLOR_diff_chaos (atoi (argv[++i]));
+         if (i + 1 < argc) if (atoi (argv [i + 1]) > 0 )  my.c_seed  = atoi (argv[++i]);
       }
    }
    return 0;
@@ -100,36 +102,40 @@ PROG_event         ()
             case ' ' :
                switch (x_ch) {
                case 'Q' : done = 1;                                  break;
-               case '[' : increment  = STOP;      angle  =   0.0;    break;
-               case '{' : increment  = STOP;      angle +=  90.0;    break;
-               case '(' : increment  = STOP;      angle +=  20.0;    break;
-               case '-' : increment -= INC_SPEED;                    break;
-               case '<' : increment  = STOP;      angle += single;   break;
-               case '.' : increment  = STOP;      action = 0;        break;
-               case '>' : increment  = STOP;      angle -= single;   break;
-               case '+' : increment += INC_SPEED;                    break;
-               case ')' : increment  = STOP;      angle -=  20.0;    break;
-               case '}' : increment  = STOP;      angle -=  90.0;    break;
-               case ']' : increment  = STOP;      angle  =   0.0;    break;
-               case 'd' :                         zdist -=  20.0;    break;
-               case 'D' :                         zdist -= 100.0;    break;
-               case 't' :                         zdist +=  20.0;    break;
-               case 'T' :                         zdist += 100.0;    break;
-               case 'k' :                         ydist -=   5.0;    break;
-               case 'K' :                         ydist -=  20.0;    break;
-               case 'j' :                         ydist +=   5.0;    break;
-               case 'J' :                         ydist +=  20.0;    break;
-               case 'l' :                         xdist -=   5.0;    break;
-               case 'L' :                         xdist -=  20.0;    break;
-               case 'h' :                         xdist +=   5.0;    break;
-               case 'H' :                         xdist +=  20.0;    break;
-               case '0' : mask_big();    break;
-               case '1' : mask_small();  break;
-               case '2' : mask_tiny();   break;
-               case 'a' : edges = 'b'; strcpy(focus, ""); flen = 0; full_refresh();               break;
-               case 's' : edges = 's'; full_refresh();               break;
-               case 'e' : edges = 'e'; full_refresh();               break;
-               case 'b' : edges = 'b'; full_refresh();               break;
+               case 's' : ++my.c_start; full_refresh ();            break;
+               case 'S' : --my.c_start; full_refresh ();            break;
+               case 'c' : ++my.c_seed;  full_refresh ();            break;
+               case 'C' : --my.c_seed;  full_refresh ();            break;
+               /*> case '[' : increment  = STOP;      angle  =   0.0;    break;                                <* 
+                *> case '{' : increment  = STOP;      angle +=  90.0;    break;                                <* 
+                *> case '(' : increment  = STOP;      angle +=  20.0;    break;                                <* 
+                *> case '-' : increment -= INC_SPEED;                    break;                                <* 
+                *> case '<' : increment  = STOP;      angle += single;   break;                                <* 
+                *> case '.' : increment  = STOP;      action = 0;        break;                                <* 
+                *> case '>' : increment  = STOP;      angle -= single;   break;                                <* 
+                *> case '+' : increment += INC_SPEED;                    break;                                <* 
+                *> case ')' : increment  = STOP;      angle -=  20.0;    break;                                <* 
+                *> case '}' : increment  = STOP;      angle -=  90.0;    break;                                <* 
+                *> case ']' : increment  = STOP;      angle  =   0.0;    break;                                <* 
+                *> case 'd' :                         zdist -=  20.0;    break;                                <* 
+                *> case 'D' :                         zdist -= 100.0;    break;                                <* 
+                *> case 't' :                         zdist +=  20.0;    break;                                <* 
+                *> case 'T' :                         zdist += 100.0;    break;                                <* 
+                *> case 'k' :                         ydist -=   5.0;    break;                                <* 
+                *> case 'K' :                         ydist -=  20.0;    break;                                <* 
+                *> case 'j' :                         ydist +=   5.0;    break;                                <* 
+                *> case 'J' :                         ydist +=  20.0;    break;                                <* 
+                *> case 'l' :                         xdist -=   5.0;    break;                                <* 
+                *> case 'L' :                         xdist -=  20.0;    break;                                <* 
+                *> case 'h' :                         xdist +=   5.0;    break;                                <* 
+                *> case 'H' :                         xdist +=  20.0;    break;                                <* 
+                *> case '0' : mask_big();    break;                                                            <* 
+                *> case '1' : mask_small();  break;                                                            <* 
+                *> case '2' : mask_tiny();   break;                                                            <* 
+                *> case 'a' : edges = 'b'; strcpy(focus, ""); flen = 0; full_refresh();               break;   <* 
+                *> case 's' : edges = 's'; full_refresh();               break;                                <* 
+                *> case 'e' : edges = 'e'; full_refresh();               break;                                <* 
+                *> case 'b' : edges = 'b'; full_refresh();               break;                                <*/
                case ';' : FIND_hintmode (x_mode, x_ch); x_mode = ';';     break;
                case ',' : FIND_filemode (x_mode, x_ch); x_mode = ',';     break;
                default  :                                            break;

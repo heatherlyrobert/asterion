@@ -156,8 +156,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5k"
-#define VER_TXT   "changed to read HTAG files not a specialty made stdin"
+#define VER_NUM   "v0.5l"
+#define VER_TXT   "updated documentation little"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -203,6 +203,7 @@ struct cEDGE {
    tEDGE    *next;                /* pointer to next sibling                  */
 };
 extern int      nedge;
+extern int      aedge;
 extern tEDGE   *ehead;
 extern tEDGE   *etail;
 
@@ -220,6 +221,9 @@ struct cGLOBALS {
    char        format;
    char        s_file    [  5];        /* find file string                    */
    char        s_hint    [  5];        /* find hint string                    */
+   char        c_scheme;               /* color scheme                        */
+   int         c_start;                /* color start                         */
+   int         c_seed;                 /* color seed                          */
 } my;
 
 
@@ -287,6 +291,7 @@ char       font_load         (void);
 char       font_delete       (void);
 
 void       str_trim          (char *a_cstring);
+char       NODE_color        (void);
 char       NODE_read         (void);
 
 char       FIND_filemode        (char a_major, char a_minor);
