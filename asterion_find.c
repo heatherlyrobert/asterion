@@ -2,8 +2,6 @@
 #include   "asterion.h"
 
 static     char    s_type    = '-';
-char               s_file    [  5]  = "";
-char               s_hint    [  5]  = "";
 char               s_hintold [  5]  = "";
 static     char    s_search  [100]  = "";
 static     char    s_fileid  = -1;
@@ -16,7 +14,7 @@ FIND__filter         (void)
    tNODE      *x_node      = NULL;
    char        x_hint      = '-';
    x_node  = nhead;
-   if (strlen (s_hint) == 4)  x_hint = 'y';
+   if (strlen (my.s_hint) == 4)  x_hint = 'y';
    for (i = 0; i < nnode; ++i) {
       /*---(default)---------------------*/
       x_node->show = 'f';
@@ -28,7 +26,7 @@ FIND__filter         (void)
       }
       /*---(check hint)------------------*/
       if (x_hint == 'y') {
-         if (s_hint [2] != x_node->hint [0] || s_hint[3] != x_node->hint [1]) {
+         if (my.s_hint [2] != x_node->hint [0] || my.s_hint[3] != x_node->hint [1]) {
             if (x_node->show == 'f')  x_node->show = 'y';
          }
       }
@@ -90,6 +88,16 @@ FIND__partition      (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.KA6.247.C2]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
+FIND_file_clear      (void)
+{
+   DEBUG_USER   yLOG_note    ("reseting file search");
+   strcpy (my.s_file, ",");
+   s_fileid = -1;
+   alpha    = 0.0;
+   DEBUG_USER   yLOG_info    ("my.s_file"    , my.s_file);
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.KA6.247.C2]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
 FIND_filemode        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -102,57 +110,42 @@ FIND_filemode        (char a_major, char a_minor)
    DEBUG_USER   yLOG_value   ("a_major"   , a_major);
    DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   DEBUG_USER   yLOG_info    ("s_file"    , s_file);
-   x_len = strlen (s_file);
+   DEBUG_USER   yLOG_info    ("my.s_file" , my.s_file);
+   x_len = strlen (my.s_file);
    DEBUG_USER   yLOG_value   ("x_len"     , x_len);
    /*---(first call)---------------------*/
    --rce;  if (a_major != ',' && a_minor == ',') {
       DEBUG_USER   yLOG_note    ("first call, initialize");
-      strcpy (s_file, ",");
-      s_fileid = -1;
-      alpha = 0.5;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      FIND_file_clear  ();
+      alpha    = 0.5;
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(defense)------------------------*/
    --rce;  if (a_major != ',') {
       DEBUG_USER   yLOG_note    ("incorrect major, failed");
-      strcpy (s_file, "");
-      s_fileid = -1;
-      alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      FIND_file_clear  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(escaping out)-------------------*/
    if (a_minor == 10 || a_minor == 27) {
       DEBUG_USER   yLOG_note    ("return/escape, quit");
-      strcpy (s_file, "");
-      s_fileid = -1;
-      FIND__filter ();
-      alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      FIND_file_clear  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 1;
    }
    /*---(too small)----------------------*/
    --rce;  if (x_len <  1) {
-      DEBUG_USER   yLOG_note    ("s_file too small");
-      strcpy (s_file, "");
-      s_fileid = -1;
-      alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      DEBUG_USER   yLOG_note    ("my.s_file too small");
+      FIND_file_clear  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(too large)----------------------*/
    --rce;  if (x_len >  2) {
-      DEBUG_USER   yLOG_note    ("s_file too large");
-      strcpy (s_file, "");
-      s_fileid = -1;
-      alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      DEBUG_USER   yLOG_note    ("my.s_file too large");
+      FIND_file_clear  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -161,21 +154,18 @@ FIND_filemode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_note    ("file identifier");
       if (strchr ("-,0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", a_minor) == NULL) {
          DEBUG_USER   yLOG_note    ("invalid char");
-         strcpy (s_file, "");
-         s_fileid = -1;
-         alpha = 0.0;
-         DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+         FIND_file_clear  ();
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       sprintf (t, "%c", a_minor);
-      strcat  (s_file, t);
+      strcat  (my.s_file, t);
       if      (a_minor == '-')    x_fileid = -1;
       else if (a_minor == ',')    x_fileid = -1;
       else if (a_minor < '9')     x_fileid = a_minor - '0';
       else                        x_fileid = a_minor - 'A' + 10;
       if (x_fileid <= nfile)  s_fileid = x_fileid;
-      DEBUG_USER   yLOG_info    ("s_file"    , s_file);
+      DEBUG_USER   yLOG_info    ("my.s_file"    , my.s_file);
       DEBUG_USER   yLOG_value   ("s_fileid"  , s_fileid);
    }
    /*---(enact)--------------------------*/
@@ -198,23 +188,23 @@ FIND__hintrelative   (void)
    char        x_found     = '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
-   DEBUG_USER   yLOG_char    ("s_hint[1]" , s_hint [1]);
-   if (s_hint [1] == '[') {
+   DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
+   DEBUG_USER   yLOG_char    ("my.s_hint[1]" , my.s_hint [1]);
+   if (my.s_hint [1] == '[') {
       DEBUG_USER   yLOG_note    ("find first hint");
-      sprintf (s_hint, ";;%s", nhead->hint);
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      sprintf (my.s_hint, ";;%s", nhead->hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   if (s_hint [1] == ']') {
+   if (my.s_hint [1] == ']') {
       DEBUG_USER   yLOG_note    ("find last hint");
-      sprintf (s_hint, ";;%s", ntail->hint);
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      sprintf (my.s_hint, ";;%s", ntail->hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   --rce;  if (s_hint [1] == '<' || s_hint [1] == '>') {
+   --rce;  if (my.s_hint [1] == '<' || my.s_hint [1] == '>') {
       DEBUG_USER   yLOG_note    ("<> hint, start search");
       if (strcmp (s_hintold, "") == 0) {
          sprintf (s_hintold, ";;%s", nhead->hint);
@@ -237,27 +227,27 @@ FIND__hintrelative   (void)
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      if (s_hint [1] == '<') {
+      if (my.s_hint [1] == '<') {
          DEBUG_USER   yLOG_note    ("look for previous");
          if (x_node->prev == NULL) {
             DEBUG_USER   yLOG_note    ("previous is null");
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce -1);
             return rce - 1;
          }
-         sprintf (s_hint, ";;%s", x_node->prev->hint);
-         DEBUG_USER   yLOG_note    ("s_hint"    , s_hint);
+         sprintf (my.s_hint, ";;%s", x_node->prev->hint);
+         DEBUG_USER   yLOG_note    ("my.s_hint"    , my.s_hint);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      if (s_hint [1] == '>') {
+      if (my.s_hint [1] == '>') {
          DEBUG_USER   yLOG_note    ("look for next");
          if (x_node->next == NULL) {
             DEBUG_USER   yLOG_note    ("next is null");
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce -2);
             return rce - 2;
          }
-         sprintf (s_hint, ";;%s", x_node->next->hint);
-         DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+         sprintf (my.s_hint, ";;%s", x_node->next->hint);
+         DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
@@ -279,42 +269,42 @@ FIND_hintmode        (char a_major, char a_minor)
    DEBUG_USER   yLOG_value   ("a_major"   , a_major);
    DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
-   x_len = strlen (s_hint);
+   DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
+   x_len = strlen (my.s_hint);
    DEBUG_USER   yLOG_value   ("x_len"     , x_len);
    /*---(first call)---------------------*/
    --rce;  if (a_major != ';' && a_minor == ';') {
       DEBUG_USER   yLOG_note    ("first call, initialize");
-      strcpy (s_hint, ";");
+      strcpy (my.s_hint, ";");
       alpha = 0.5;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(defense)------------------------*/
    --rce;  if (a_major != ';') {
       DEBUG_USER   yLOG_note    ("incorrect major, failed");
-      strcpy (s_hint, "");
+      strcpy (my.s_hint, "");
       alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(escaping out)-------------------*/
    if (a_minor == 13 || a_minor == 27) {
       DEBUG_USER   yLOG_note    ("clear hint focus");
-      strcpy (s_hint, "");
+      strcpy (my.s_hint, "");
       FIND__filter ();
       alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 1;
    }
    /*---(second call)--------------------*/
    if (a_minor == ';') {
       DEBUG_USER   yLOG_note    ("second semi-colon");
-      strcat (s_hint, ";");
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      strcat (my.s_hint, ";");
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -322,36 +312,36 @@ FIND_hintmode        (char a_major, char a_minor)
    if (strchr ("[<>]", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("relative hint");
       sprintf (t, "%c", a_minor);
-      strcat  (s_hint, t);
+      strcat  (my.s_hint, t);
       rc = FIND__hintrelative ();
       if (rc < 0) {
-         strcpy (s_hint, "");
+         strcpy (my.s_hint, "");
          alpha = 0.0;
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
          return rc;
       }
-      strcpy  (s_hintold, s_hint);
+      strcpy  (s_hintold, my.s_hint);
       FIND__filter ();
       alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 1;
    }
    /*---(too small)----------------------*/
    --rce;  if (x_len <  2) {
-      DEBUG_USER   yLOG_note    ("s_hint too small");
-      strcpy (s_hint, "");
+      DEBUG_USER   yLOG_note    ("my.s_hint too small");
+      strcpy (my.s_hint, "");
       alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(too large)----------------------*/
    --rce;  if (x_len >  3) {
-      DEBUG_USER   yLOG_note    ("s_hint too large");
-      strcpy (s_hint, "");
+      DEBUG_USER   yLOG_note    ("my.s_hint too large");
+      strcpy (my.s_hint, "");
       alpha = 0.0;
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -360,15 +350,15 @@ FIND_hintmode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_note    ("first hint character");
       if (strchr ("abcdefghijklmnopqrstuvwxyz", a_minor) == NULL) {
          DEBUG_USER   yLOG_note    ("invalid char");
-         strcpy (s_hint, "");
+         strcpy (my.s_hint, "");
          alpha = 0.0;
-         DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+         DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       sprintf (t, "%c", a_minor);
-      strcat  (s_hint, t);
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      strcat  (my.s_hint, t);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -377,16 +367,16 @@ FIND_hintmode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_note    ("second hint character");
       if (strchr ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", a_minor) == NULL) {
          DEBUG_USER   yLOG_note    ("invalid char");
-         strcpy (s_hint, "");
+         strcpy (my.s_hint, "");
          alpha = 0.0;
-         DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+         DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       sprintf (t, "%c", a_minor);
-      strcat  (s_hint, t);
-      strcpy  (s_hintold, s_hint);
-      DEBUG_USER   yLOG_info    ("s_hint"    , s_hint);
+      strcat  (my.s_hint, t);
+      strcpy  (s_hintold, my.s_hint);
+      DEBUG_USER   yLOG_info    ("my.s_hint"    , my.s_hint);
    }
    /*---(enact)--------------------------*/
    DEBUG_USER   yLOG_note    ("filter now");

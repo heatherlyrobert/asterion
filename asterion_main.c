@@ -18,8 +18,6 @@ main               (int a_argc, char *a_argv[])
       PROG_end ();
       return -1;
    }
-   DEBUG_T  printf("\nconverge : program callback analysis using radial convergence diagramming\n\n");
-   if (rc == 0) rc = PROG_begin();
    if (rc == 0) rc = PROG_event();
    PROG_end();                         /* end should run no matter what       */
    return rc;

@@ -8,6 +8,64 @@ tEDGE   *ehead  = NULL;
 tEDGE   *etail  = NULL;
 
 
+static FILE *s_file   = NULL;          /* file pointer   */
+static char *s_name   = "HTAG.flow";   /* file name      */
+static char  s_recd   [MAXLINE] = "";  /* incomming node */
+
+
+
+/*====================------------------------------------====================*/
+/*===----                      basic file handling                     ----===*/
+/*====================------------------------------------====================*/
+static void   o___FILE_HANDLE_____o (void) { return; }
+
+char         /*-> open file for reading and prep -----[ leaf   [ge.723.023.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+EDGE_open          ()
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char       *p           = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(open file)----------------------*/
+   DEBUG_INPT  yLOG_info    ("s_name"    , s_name);
+   s_file = fopen (s_name, "r");
+   DEBUG_INPT  yLOG_point   ("s_file"    , s_file);
+   --rce;  if (s_file == NULL) {
+      DEBUG_INPT  yLOG_note    ("file could not be openned");
+      DEBUG_INPT  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT  yLOG_note    ("file successfully opened");
+   /*---(complete)-----------------*/
+   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> close file and wrap ----------------[ leaf   [ge.411.011.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+EDGE_close         (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(close file)---------------------*/
+   DEBUG_INPT  yLOG_info    ("s_name"    , s_name);
+   DEBUG_INPT  yLOG_point   ("s_file"    , s_file);
+   if (s_file == NULL) {
+      DEBUG_INPT  yLOG_note    ("no file to close");
+   } else {
+      DEBUG_INPT  yLOG_note    ("close file");
+      fclose  (s_file);
+   }
+   /*---(null file pointer)--------------*/
+   s_file = NULL;
+   DEBUG_INPT  yLOG_point   ("s_file"    , s_file);
+   /*---(complete)-----------------*/
+   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 tEDGE*       /*-> create a new edge ------------------[ leaf   [gp.420.011.00]*/ /*-[10.0000.013.!]-*/ /*-[--.---.---.--]-*/
 EDGE_create        (void)
@@ -78,7 +136,7 @@ EDGE_read          (void)
    DEBUG_I  printf("EDGE_read     () begin\n");
    /*---(locals)--------------------------------*/
    char        rce         =  -10;
-   char        x_recd      [MAXLINE] = "";  /* record from stdin                   */
+   char        rc          =    0;
    char*       p           = NULL;          /* strtok() parsing pointer            */
    char       *q           = "(";           /* strtok() delimiters                 */
    tNODE      *x_orig      = NULL;         /* origin node                         */
@@ -92,19 +150,23 @@ EDGE_read          (void)
    int         x_dups      = 0;
    int         x_bado      = 0;
    int         x_badd      = 0;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(open)---------------------------*/
+   rc = EDGE_open ();
+   DEBUG_INPT  yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(read edges)---------------------*/
    while (1) {
       /*---(read line)-------------------*/
-      fgets (x_recd, MAXLINE, stdin);
-      if (feof (stdin))                     break;
-      /*---(filter)----------------------*/
-      if (x_recd [0] == '\n') {
-         if (x_total <= 0)                  continue;
-         else                               break;
-      }
+      fgets (s_recd, MAXLINE, s_file);
+      if (feof (s_file))                     break;
       ++x_total;
       /*---(name and level)--------------*/
-      p         = strtok (x_recd, q);
+      p         = strtok (s_recd, q);
       x_len     = strlen (p);
       x_level   = EDGE_level (p);
       if (x_level <  0)                       continue;
@@ -148,6 +210,7 @@ EDGE_read          (void)
       }
       /*---(prepare for next)------------*/
    }
+   EDGE_close ();
    rce -= 10;
    /*---(test for trouble)---------------*/
    --rce;  if (nedge <= 0)        return rce;

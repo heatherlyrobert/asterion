@@ -156,8 +156,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define VER_NUM   "v0.5j"
-#define VER_TXT   "hint relative movements ;[ ;< ;> ;] now working"
+#define VER_NUM   "v0.5k"
+#define VER_TXT   "changed to read HTAG files not a specialty made stdin"
 
 
 /*===[[ window semi-constants ]]==============================================*/
@@ -206,8 +206,6 @@ extern int      nedge;
 extern tEDGE   *ehead;
 extern tEDGE   *etail;
 
-extern char    s_file    [  5];
-extern char    s_hint    [  5];
 
 
 
@@ -218,8 +216,10 @@ float  my_cos[3600];
 
 
 struct cGLOBALS {
-   char     *file;
-   char      format;
+   char       *file;
+   char        format;
+   char        s_file    [  5];        /* find file string                    */
+   char        s_hint    [  5];        /* find hint string                    */
 } my;
 
 

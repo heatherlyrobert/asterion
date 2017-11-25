@@ -7,6 +7,7 @@
 char         /*-> drive program startup --------------[ shoot  [gz.210.001.00]*/ /*-[00.0000.101.!]-*/ /*-[--.---.---.--]-*/
 PROG_init          (void)
 {
+   yCOLOR_diff_scheme (YCOLOR_WHITE);
    return 0;
 }
 
@@ -43,7 +44,6 @@ PROG_begin         (void)
    /*---(load basics)---------------------------*/
    font_load();
    trig_load();
-   yCOLOR_diff_scheme (YCOLOR_WHITE);
    rc = NODE_read();
    rc = EDGE_read();
    /*---(create texture)------------------------*/
